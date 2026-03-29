@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output (GitHub Pages will use this)
+docs/
+.generated/
+
+# PowerShell output
+_info/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+

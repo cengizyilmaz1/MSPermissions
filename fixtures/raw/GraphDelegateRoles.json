@@ -1,0 +1,22 @@
+[
+  {
+    "Id": "33333333-3333-3333-3333-333333333333",
+    "Value": "User.Read.All",
+    "AdminConsentDisplayName": "Read all users' full profiles",
+    "AdminConsentDescription": "Allows the app to read all users' full profiles on behalf of the signed-in user.",
+    "UserConsentDisplayName": "Read all users' full profiles",
+    "UserConsentDescription": "Allows the app to read all users' full profiles on your behalf.",
+    "Type": "Admin",
+    "IsEnabled": true
+  },
+  {
+    "Id": "44444444-4444-4444-4444-444444444444",
+    "Value": "Mail.Read",
+    "AdminConsentDisplayName": "Read mail",
+    "AdminConsentDescription": "Allows the app to read your mail.",
+    "UserConsentDisplayName": "Read your mail",
+    "UserConsentDescription": "Allows the app to read your mail on your behalf.",
+    "Type": "User",
+    "IsEnabled": true
+  }
+]

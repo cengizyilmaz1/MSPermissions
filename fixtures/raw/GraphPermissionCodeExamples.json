@@ -1,0 +1,100 @@
+{
+  "Mail.Read": {
+    "v1": {
+      "csharp": [
+        {
+          "endpoint": "/me/messages",
+          "title": "List messages",
+          "docLink": "https://learn.microsoft.com/en-us/graph/api/user-list-messages?view=graph-rest-1.0",
+          "code": "var result = await graphClient.Me.Messages.GetAsync();",
+          "supportsDelegated": true,
+          "supportsApplication": false,
+          "isLeastPrivilege": true
+        }
+      ],
+      "javascript": [],
+      "powershell": [
+        {
+          "endpoint": "/me/messages",
+          "title": "List messages",
+          "docLink": "https://learn.microsoft.com/en-us/graph/api/user-list-messages?view=graph-rest-1.0",
+          "code": "Import-Module Microsoft.Graph.Mail\nGet-MgUserMessage -UserId $userId",
+          "supportsDelegated": true,
+          "supportsApplication": false,
+          "isLeastPrivilege": true
+        }
+      ],
+      "python": []
+    },
+    "beta": {
+      "csharp": [],
+      "javascript": [],
+      "powershell": [],
+      "python": []
+    }
+  },
+  "User.Read.All": {
+    "v1": {
+      "csharp": [
+        {
+          "endpoint": "/users/{user-id}",
+          "title": "Get user",
+          "docLink": "https://learn.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0",
+          "code": "var result = await graphClient.Users[\"{user-id}\"].GetAsync();",
+          "supportsDelegated": true,
+          "supportsApplication": true,
+          "isLeastPrivilege": true
+        }
+      ],
+      "javascript": [
+        {
+          "endpoint": "/users/{user-id}",
+          "title": "Get user",
+          "docLink": "https://learn.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0",
+          "code": "const result = await graphClient.users.byUserId('user-id').get();",
+          "supportsDelegated": true,
+          "supportsApplication": true,
+          "isLeastPrivilege": true
+        }
+      ],
+      "powershell": [
+        {
+          "endpoint": "/users/{user-id}",
+          "title": "Get user",
+          "docLink": "https://learn.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0",
+          "code": "Import-Module Microsoft.Graph.Users\nGet-MgUser -UserId $userId",
+          "supportsDelegated": true,
+          "supportsApplication": true,
+          "isLeastPrivilege": true
+        }
+      ],
+      "python": [
+        {
+          "endpoint": "/users/{user-id}",
+          "title": "Get user",
+          "docLink": "https://learn.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0",
+          "code": "result = await graph_client.users.by_user_id('user-id').get()",
+          "supportsDelegated": true,
+          "supportsApplication": true,
+          "isLeastPrivilege": true
+        }
+      ]
+    },
+    "beta": {
+      "csharp": [],
+      "javascript": [],
+      "powershell": [
+        {
+          "endpoint": "/users/{user-id}",
+          "title": "Get user",
+          "docLink": "https://learn.microsoft.com/en-us/graph/api/user-get?view=graph-rest-beta",
+          "code": "Import-Module Microsoft.Graph.Beta.Users\nGet-MgBetaUser -UserId $userId",
+          "supportsDelegated": true,
+          "supportsApplication": true,
+          "isLeastPrivilege": true
+        }
+      ],
+      "python": []
+    }
+  }
+}

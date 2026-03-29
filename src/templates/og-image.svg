@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="86" y1="56" x2="1080" y2="594" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0b5bd3" />
+      <stop offset="0.48" stop-color="#0f7aea" />
+      <stop offset="1" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="panel" x1="180" y1="124" x2="1018" y2="502" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="rgba(255,255,255,0.18)" />
+      <stop offset="1" stop-color="rgba(255,255,255,0.08)" />
+    </linearGradient>
+    <filter id="shadow" x="118" y="94" width="964" height="440" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+      <feOffset dy="18" />
+      <feGaussianBlur stdDeviation="24" />
+      <feColorMatrix type="matrix" values="0 0 0 0 0.031 0 0 0 0 0.071 0 0 0 0 0.173 0 0 0 0.35 0" />
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_2" />
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_2" result="shape" />
+    </filter>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" stroke="rgba(255,255,255,0.09)" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <rect width="1200" height="630" fill="url(#grid)" />
+  <circle cx="1024" cy="126" r="168" fill="rgba(255,255,255,0.08)" />
+  <circle cx="196" cy="540" r="144" fill="rgba(15,23,42,0.24)" />
+
+  <g filter="url(#shadow)">
+    <rect x="166" y="122" width="868" height="362" rx="32" fill="url(#panel)" stroke="rgba(255,255,255,0.22)" />
+  </g>
+
+  <g transform="translate(232 170)">
+    <rect x="0" y="28" width="84" height="84" rx="24" fill="rgba(255,255,255,0.14)" />
+    <g transform="translate(22 38)" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="20,0 0,11 20,22 40,11" fill="rgba(255,255,255,0.18)" />
+      <polyline points="0,22 20,33 40,22" />
+      <polyline points="0,33 20,44 40,33" />
+    </g>
+    <text x="118" y="44" fill="#DCEBFF" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif" font-size="26" font-weight="600" letter-spacing="0.08em">MICROSOFT GRAPH REFERENCE</text>
+    <text x="118" y="128" fill="#FFFFFF" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif" font-size="64" font-weight="700">Graph Permissions Explorer</text>
+    <text x="118" y="182" fill="#D8E6FF" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif" font-size="30" font-weight="400">
+      Permission scopes, Microsoft apps, API methods, and schema metadata
+    </text>
+
+    <g transform="translate(118 228)">
+      <rect x="0" y="0" width="248" height="68" rx="18" fill="rgba(255,255,255,0.11)" stroke="rgba(255,255,255,0.16)" />
+      <rect x="268" y="0" width="248" height="68" rx="18" fill="rgba(15,23,42,0.22)" stroke="rgba(255,255,255,0.14)" />
+      <rect x="536" y="0" width="248" height="68" rx="18" fill="rgba(255,255,255,0.11)" stroke="rgba(255,255,255,0.16)" />
+
+      <text x="28" y="28" fill="#DCEBFF" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif" font-size="18" font-weight="600">Permissions</text>
+      <text x="28" y="52" fill="#FFFFFF" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif" font-size="24" font-weight="700">Application and delegated</text>
+
+      <text x="296" y="28" fill="#DCEBFF" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif" font-size="18" font-weight="600">Microsoft Apps</text>
+      <text x="296" y="52" fill="#FFFFFF" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif" font-size="24" font-weight="700">First-party App IDs</text>
+
+      <text x="564" y="28" fill="#DCEBFF" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif" font-size="18" font-weight="600">Publishing</text>
+      <text x="564" y="52" fill="#FFFFFF" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif" font-size="24" font-weight="700">permissions.cengizyilmaz.net</text>
+    </g>
+  </g>
+</svg>

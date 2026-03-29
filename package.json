@@ -1,0 +1,30 @@
+{
+  "name": "graph-permissions-explorer",
+  "version": "1.0.0",
+  "description": "Microsoft Graph API İzinleri Keşif Aracı - Graph Permissions Explorer",
+  "main": "Script/node/build-site.js",
+  "scripts": {
+    "refresh:methods": "node Script/node/refresh-permission-docs.js",
+    "refresh:data": "node Script/node/refresh-data.js",
+    "normalize:data": "node Script/node/normalize-data.js",
+    "validate:data": "node Script/node/validate-data.js",
+    "build:site": "node Script/node/build-site.js",
+    "build:fixture": "node Script/node/normalize-data.js --raw-dir fixtures/raw --output .generated/fixtures --ingested-at 2026-01-01T00:00:00Z && node Script/node/validate-data.js --input .generated/fixtures/site-data.json --fixture && node Script/node/build-site.js --input .generated/fixtures/site-data.json --output docs",
+    "build": "node Script/node/build-site.js",
+    "serve": "npx http-server docs -p 8080 -o",
+    "clean": "node -e \"require('fs').rmSync('docs', { recursive: true, force: true }); require('fs').rmSync('.generated', { recursive: true, force: true })\"",
+    "test": "node --test"
+  },
+  "keywords": [
+    "microsoft-graph",
+    "permissions",
+    "entra",
+    "azure-ad",
+    "oauth2"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "message": {
+    "v1": {
+      "name": "message",
+      "title": "message resource type",
+      "docLink": "https://learn.microsoft.com/en-us/graph/api/resources/message?view=graph-rest-1.0",
+      "description": "Messages are email items in a mailbox.",
+      "properties": [
+        {
+          "name": "id",
+          "type": "guid",
+          "description": "The unique identifier of the message."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "description": "The subject of the message."
+        }
+      ],
+      "relationships": [
+        {
+          "name": "attachments",
+          "type": "attachment collection",
+          "description": "The attachments for the message."
+        }
+      ],
+      "jsonRepresentation": "{\n  \"id\": \"AAMkAG...\",\n  \"subject\": \"Hello\"\n}"
+    },
+    "beta": null
+  },
+  "user": {
+    "v1": {
+      "name": "user",
+      "title": "user resource type",
+      "docLink": "https://learn.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0",
+      "description": "Represents a Microsoft Entra user account.",
+      "properties": [
+        {
+          "name": "id",
+          "type": "guid",
+          "description": "The unique identifier for the user."
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "description": "The name displayed in the address book for the user."
+        }
+      ],
+      "relationships": [
+        {
+          "name": "manager",
+          "type": "directoryObject",
+          "description": "The user's manager."
+        },
+        {
+          "name": "memberOf",
+          "type": "directoryObject collection",
+          "description": "Groups, roles, and administrative units that the user is a member of."
+        }
+      ],
+      "jsonRepresentation": "{\n  \"id\": \"00000000-0000-0000-0000-000000000000\",\n  \"displayName\": \"Adele Vance\"\n}"
+    },
+    "beta": null
+  }
+}

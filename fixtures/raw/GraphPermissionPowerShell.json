@@ -1,0 +1,43 @@
+{
+  "Mail.Read": {
+    "v1": [
+      {
+        "command": "Get-MgUserMessage",
+        "endpoint": "/me/messages",
+        "title": "List messages",
+        "docLink": "https://learn.microsoft.com/en-us/graph/api/user-list-messages?view=graph-rest-1.0",
+        "supportsDelegated": true,
+        "supportsApplication": false,
+        "isLeastPrivilege": true,
+        "code": "Import-Module Microsoft.Graph.Mail\nGet-MgUserMessage -UserId $userId"
+      }
+    ],
+    "beta": []
+  },
+  "User.Read.All": {
+    "v1": [
+      {
+        "command": "Get-MgUser",
+        "endpoint": "/users/{user-id}",
+        "title": "Get user",
+        "docLink": "https://learn.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0",
+        "supportsDelegated": true,
+        "supportsApplication": true,
+        "isLeastPrivilege": true,
+        "code": "Import-Module Microsoft.Graph.Users\nGet-MgUser -UserId $userId"
+      }
+    ],
+    "beta": [
+      {
+        "command": "Get-MgBetaUser",
+        "endpoint": "/users/{user-id}",
+        "title": "Get user",
+        "docLink": "https://learn.microsoft.com/en-us/graph/api/user-get?view=graph-rest-beta",
+        "supportsDelegated": true,
+        "supportsApplication": true,
+        "isLeastPrivilege": true,
+        "code": "Import-Module Microsoft.Graph.Beta.Users\nGet-MgBetaUser -UserId $userId"
+      }
+    ]
+  }
+}

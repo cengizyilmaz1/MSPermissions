@@ -1,0 +1,139 @@
+<div class="index-page" id="main-content">
+    <!-- Hero Section -->
+    <div class="index-hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                Microsoft Graph API
+            </div>
+            <h1>Graph Permissions Explorer</h1>
+            <p class="hero-desc">The comprehensive reference for Microsoft Graph API permissions. Explore application and delegated permissions, discover API methods, and find the right scopes for your applications.</p>
+            <div class="hero-actions">
+                <a href="#permissions" class="btn btn-primary">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Browse Permissions
+                </a>
+                <a href="microsoft-apps.html" class="btn btn-secondary">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+                    Microsoft Apps
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section">
+        <div class="stats-grid stats-grid-2">
+            <a href="#permissions" class="stat-card stat-primary stat-card-large">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{TOTAL_PERMISSIONS}}</span>
+                    <span class="stat-label">Permissions</span>
+                    <span class="stat-detail">{{TOTAL_APP}} Application &middot; {{TOTAL_DELEGATED}} Delegated &middot; {{TOTAL_CATEGORIES}} Categories</span>
+                </div>
+                <svg class="stat-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="microsoft-apps.html" class="stat-card stat-apps stat-card-large">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{TOTAL_APPS}}</span>
+                    <span class="stat-label">Microsoft Apps</span>
+                    <span class="stat-detail">First-party application IDs from Graph, Entra &amp; Learn</span>
+                </div>
+                <svg class="stat-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-section" id="permissions">
+        <h2 class="section-title">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            What You Can Do
+        </h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </div>
+                <h3>Search Permissions</h3>
+                <p>Quickly find permissions by name, description, or category. Use Ctrl+K for instant search.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <h3>Detailed Information</h3>
+                <p>View complete permission details including descriptions, consent types, and IDs.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                </div>
+                <h3>Code Examples</h3>
+                <p>Get ready-to-use code snippets for C#, JavaScript, PowerShell, and Python.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                </div>
+                <h3>API Methods</h3>
+                <p>Discover which Graph API endpoints require each permission for v1.0 and beta.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links Section -->
+    <div class="quicklinks-section">
+        <h2 class="section-title">
+            <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            External Resources
+        </h2>
+        <div class="quick-links">
+            <a href="https://learn.microsoft.com/graph/permissions-reference" class="quick-link" target="_blank" rel="noopener">
+                <div class="quick-link-icon">
+                    <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+                <div class="quick-link-content">
+                    <h3>MS Learn Documentation</h3>
+                    <p>Official Microsoft Graph permissions reference</p>
+                </div>
+                <svg class="quick-link-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="https://developer.microsoft.com/graph/graph-explorer" class="quick-link" target="_blank" rel="noopener">
+                <div class="quick-link-icon">
+                    <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <div class="quick-link-content">
+                    <h3>Graph Explorer</h3>
+                    <p>Test Microsoft Graph API requests interactively</p>
+                </div>
+                <svg class="quick-link-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" class="quick-link" target="_blank" rel="noopener">
+                <div class="quick-link-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="quick-link-content">
+                    <h3>Azure App Registrations</h3>
+                    <p>Manage your app registrations in Azure Portal</p>
+                </div>
+                <svg class="quick-link-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="microsoft-apps.html" class="quick-link internal">
+                <div class="quick-link-icon">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+                </div>
+                <div class="quick-link-content">
+                    <h3>Microsoft First-Party Apps</h3>
+                    <p>Browse {{TOTAL_APPS}} Microsoft application IDs</p>
+                </div>
+                <svg class="quick-link-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+        </div>
+    </div>
+</div>

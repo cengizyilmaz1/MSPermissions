@@ -1,0 +1,44 @@
+{
+  "user": {
+    "properties": {
+      "v1.0": [
+        {
+          "name": "id",
+          "type": "guid",
+          "description": "The unique identifier for the user.",
+          "readOnly": true,
+          "nullable": false
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "description": "The name displayed in the address book for the user.",
+          "readOnly": false,
+          "nullable": true
+        }
+      ],
+      "beta": []
+    }
+  },
+  "message": {
+    "properties": {
+      "v1.0": [
+        {
+          "name": "id",
+          "type": "guid",
+          "description": "The unique identifier of the message.",
+          "readOnly": true,
+          "nullable": false
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "description": "The subject of the message.",
+          "readOnly": false,
+          "nullable": true
+        }
+      ],
+      "beta": []
+    }
+  }
+}

@@ -1,0 +1,186 @@
+<div class="apps-page" id="main-content" data-apps-manifest="{{APPS_MANIFEST_URL}}">
+    <div class="apps-header" id="apps-overview">
+        <div class="apps-hero">
+            <h1>
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+                Microsoft First-Party Applications
+            </h1>
+            <p>Searchable reference for {{TOTAL_APPS}} Microsoft first-party application IDs. The main catalog stays lightweight, while each app has its own detail page for direct linking, SEO, and GEO visibility.</p>
+            <div class="apps-page-meta">
+                <span>Snapshot {{SNAPSHOT_ID}}</span>
+                <span>{{OFFICIAL_APPS}} official apps</span>
+                <span>{{COMMUNITY_APPS}} community apps</span>
+                <span>Use <kbd>Ctrl+K</kbd> to search across the full site</span>
+            </div>
+        </div>
+
+        <div class="apps-stats-grid">
+            <div class="stat-card stat-total">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{TOTAL_APPS}}</span>
+                    <span class="stat-label">Total Applications</span>
+                </div>
+            </div>
+            <div class="stat-card stat-graph">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{GRAPH_COUNT}}</span>
+                    <span class="stat-label">From MS Graph</span>
+                </div>
+            </div>
+            <div class="stat-card stat-entra">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ENTRA_COUNT}}</span>
+                    <span class="stat-label">From Entra Docs</span>
+                </div>
+            </div>
+            <div class="stat-card stat-custom {{LEARN_VISIBILITY_CLASS}}" {{LEARN_HIDDEN_ATTR}}>
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{LEARN_COUNT}}</span>
+                    <span class="stat-label">From Learn</span>
+                </div>
+            </div>
+            <div class="stat-card stat-custom {{COMMUNITY_VISIBILITY_CLASS}}" {{COMMUNITY_HIDDEN_ATTR}}>
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{COMMUNITY_COUNT}}</span>
+                    <span class="stat-label">Community</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="apps-overview-grid" id="apps-sources">
+        <article class="overview-card">
+            <h2>Catalog structure</h2>
+            <p>The main apps page is a lightweight searchable catalog. Individual app pages carry the crawlable detail, stable URL, and machine-readable context.</p>
+        </article>
+        <article class="overview-card">
+            <h2>Official vs community</h2>
+            <p>Official sources are kept separate from community-maintained entries. Community records are labeled clearly instead of being mixed into the same trust level.</p>
+        </article>
+        <article class="overview-card">
+            <h2>Freshness</h2>
+            <p>App data in this snapshot was ingested at {{INGESTED_AT_LABEL}}. See <a href="{{BUILD_INFO_URL}}">build info</a> for source freshness and snapshot metadata.</p>
+        </article>
+    </section>
+
+    <div class="apps-toolbar" id="apps-catalog">
+        <div class="search-box">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="apps-search" placeholder="Search apps by name or App ID..." autocomplete="off">
+            <kbd>Ctrl+F</kbd>
+        </div>
+        
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+                All
+            </button>
+            <button class="filter-btn" data-filter="graph">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                Graph
+            </button>
+            <button class="filter-btn" data-filter="entradocs">
+                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Entra
+            </button>
+            <button class="filter-btn {{LEARN_VISIBILITY_CLASS}}" data-filter="learn" {{LEARN_HIDDEN_ATTR}}>
+                <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                Learn
+            </button>
+            <button class="filter-btn {{COMMUNITY_VISIBILITY_CLASS}}" data-filter="community" {{COMMUNITY_HIDDEN_ATTR}}>
+                <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                Community
+            </button>
+        </div>
+    </div>
+
+    <div class="apps-table-section">
+        <h2>
+            <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M9 21V9"/></svg>
+            Apps Catalog
+        </h2>
+        <p class="apps-page-note">The table below is hydrated from the generated JSON catalog. Search results open dedicated app detail pages instead of jumping across numbered list pages.</p>
+        <div class="table-container">
+            <table class="apps-table modern-table" id="apps-table">
+                <thead>
+                    <tr>
+                        <th>Application Name</th>
+                        <th>App ID (Client ID)</th>
+                        <th>Source</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="apps-tbody">
+                    <tr class="skeleton-row"><td><div class="skeleton-cell skeleton-name"></div></td><td><div class="skeleton-cell skeleton-id"></div></td><td><div class="skeleton-cell skeleton-source"></div></td><td><div class="skeleton-cell skeleton-action"></div></td></tr>
+                    <tr class="skeleton-row"><td><div class="skeleton-cell skeleton-name" style="width:55%"></div></td><td><div class="skeleton-cell skeleton-id"></div></td><td><div class="skeleton-cell skeleton-source"></div></td><td><div class="skeleton-cell skeleton-action"></div></td></tr>
+                    <tr class="skeleton-row"><td><div class="skeleton-cell skeleton-name" style="width:70%"></div></td><td><div class="skeleton-cell skeleton-id"></div></td><td><div class="skeleton-cell skeleton-source"></div></td><td><div class="skeleton-cell skeleton-action"></div></td></tr>
+                    <tr class="skeleton-row"><td><div class="skeleton-cell skeleton-name" style="width:48%"></div></td><td><div class="skeleton-cell skeleton-id"></div></td><td><div class="skeleton-cell skeleton-source"></div></td><td><div class="skeleton-cell skeleton-action"></div></td></tr>
+                    <tr class="skeleton-row"><td><div class="skeleton-cell skeleton-name" style="width:62%"></div></td><td><div class="skeleton-cell skeleton-id"></div></td><td><div class="skeleton-cell skeleton-source"></div></td><td><div class="skeleton-cell skeleton-action"></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="apps-info-section">
+        <div class="info-card">
+            <div class="info-card-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </div>
+            <div class="info-card-content">
+                <h3>How to use these App IDs</h3>
+                <p>Use these Application IDs to identify Microsoft first-party applications in sign-in logs, conditional access policies, audit investigations, and service principal reviews. For machine-readable data, see <a href="{{APPS_MANIFEST_URL}}">apps manifest</a>.</p>
+            </div>
+        </div>
+        
+        <div class="source-cards">
+            <a href="https://graph.microsoft.com" target="_blank" rel="noopener" class="source-card source-graph">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                <span class="source-name">Microsoft Graph</span>
+                <span class="source-desc">Primary API source</span>
+            </a>
+            <a href="https://github.com/MicrosoftDocs/entra-docs" target="_blank" rel="noopener" class="source-card source-entra">
+                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span class="source-name">Entra Docs</span>
+                <span class="source-desc">Known GUID catalog</span>
+            </a>
+            <a href="https://learn.microsoft.com/troubleshoot/azure/active-directory/verify-first-party-apps-sign-in" target="_blank" rel="noopener" class="source-card source-learn {{LEARN_VISIBILITY_CLASS}}" {{LEARN_HIDDEN_ATTR}}>
+                <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <span class="source-name">Microsoft Learn</span>
+                <span class="source-desc">Support article source</span>
+            </a>
+        </div>
+    </div>
+
+    <section class="apps-contracts-section" id="apps-data-contracts">
+        <h2>Data contracts</h2>
+        <div class="contracts-grid">
+            <a class="contract-card" href="{{APPS_MANIFEST_URL}}">
+                <strong>apps-manifest.json</strong>
+                <span>Search index, source counts, and chunk list.</span>
+            </a>
+            <a class="contract-card" href="{{BUILD_INFO_URL}}">
+                <strong>build-info.json</strong>
+                <span>Snapshot ID, generated time, and source freshness.</span>
+            </a>
+            <a class="contract-card" href="{{LLMS_URL}}">
+                <strong>llms.txt</strong>
+                <span>Compact AI discovery file for the published site.</span>
+            </a>
+        </div>
+    </section>
+</div>

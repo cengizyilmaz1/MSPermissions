@@ -1,0 +1,6 @@
+"Permission","Method","Endpoint","ApiVersion"
+"User.Read.All","GET","/users","v1.0"
+"User.Read.All","GET","/users/{user-id}","v1.0"
+"User.Read.All","GET","/users","beta"
+"Mail.Read","GET","/me/messages","v1.0"
+"Mail.Read","GET","/users/{user-id}/messages","beta"

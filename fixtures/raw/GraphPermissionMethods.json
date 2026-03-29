@@ -1,0 +1,54 @@
+{
+  "Mail.Read": {
+    "v1": [
+      {
+        "method": "GET",
+        "path": "/me/messages",
+        "docLink": "https://learn.microsoft.com/en-us/graph/api/user-list-messages?view=graph-rest-1.0",
+        "supportsDelegated": true,
+        "supportsApplication": false,
+        "isLeastPrivilege": true
+      }
+    ],
+    "beta": [
+      {
+        "method": "GET",
+        "path": "/users/{user-id}/messages",
+        "docLink": "https://learn.microsoft.com/en-us/graph/api/user-list-messages?view=graph-rest-beta",
+        "supportsDelegated": false,
+        "supportsApplication": true,
+        "isLeastPrivilege": false
+      }
+    ]
+  },
+  "User.Read.All": {
+    "v1": [
+      {
+        "method": "GET",
+        "path": "/users",
+        "docLink": "https://learn.microsoft.com/en-us/graph/api/user-list?view=graph-rest-1.0",
+        "supportsDelegated": true,
+        "supportsApplication": true,
+        "isLeastPrivilege": true
+      },
+      {
+        "method": "GET",
+        "path": "/users/{user-id}",
+        "docLink": "https://learn.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0",
+        "supportsDelegated": true,
+        "supportsApplication": true,
+        "isLeastPrivilege": true
+      }
+    ],
+    "beta": [
+      {
+        "method": "GET",
+        "path": "/users",
+        "docLink": "https://learn.microsoft.com/en-us/graph/api/user-list?view=graph-rest-beta",
+        "supportsDelegated": true,
+        "supportsApplication": true,
+        "isLeastPrivilege": true
+      }
+    ]
+  }
+}

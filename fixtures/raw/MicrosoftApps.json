@@ -1,0 +1,26 @@
+[
+  {
+    "AppId": "00000003-0000-0000-c000-000000000000",
+    "AppDisplayName": "Microsoft Graph",
+    "AppOwnerOrganizationId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    "Source": "Graph"
+  },
+  {
+    "AppId": "1b730954-1685-4b74-9bfd-dac224a7b894",
+    "AppDisplayName": "Azure Active Directory PowerShell",
+    "AppOwnerOrganizationId": "",
+    "Source": "EntraDocs"
+  },
+  {
+    "AppId": "27922004-5251-4030-b22d-91ecd9a37ea4",
+    "AppDisplayName": "Outlook Mobile",
+    "AppOwnerOrganizationId": "",
+    "Source": "Learn"
+  },
+  {
+    "AppId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "AppDisplayName": "Mystery Microsoft App [Community Contributed]",
+    "AppOwnerOrganizationId": "",
+    "Source": "Custom"
+  }
+]

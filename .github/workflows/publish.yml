@@ -1,0 +1,123 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  NODE_VERSION: '20'
+  POWERSHELL_MODULE_CACHE_PATH: /home/runner/.local/share/powershell/Modules
+  GRAPH_OPENAPI_CACHE_DIR: ${{ github.workspace }}/.cache/graph-openapi
+  GRAPH_DOCS_CACHE_DIR: ${{ github.workspace }}/.cache/graph-docs
+
+concurrency:
+  group: pages-production
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Restore PowerShell modules cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.POWERSHELL_MODULE_CACHE_PATH }}
+          key: ${{ runner.os }}-pwsh-modules-${{ hashFiles('.github/workflows/publish.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-pwsh-modules-
+
+      - name: Restore data source caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.GRAPH_OPENAPI_CACHE_DIR }}
+            ${{ env.GRAPH_DOCS_CACHE_DIR }}
+          key: ${{ runner.os }}-data-sources-${{ hashFiles('.github/workflows/publish.yml', 'Script/powershell/Parse-GraphOpenAPI.ps1', 'Script/powershell/Parse-GraphOpenAPIProperties.ps1', 'Script/node/lib/graph-docs-parser.js') }}
+          restore-keys: |
+            ${{ runner.os }}-data-sources-
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          allow-no-subscriptions: true
+
+      - name: Install missing PowerShell dependencies
+        shell: pwsh
+        run: |
+          $requiredModules = @(
+            @{ Name = 'Microsoft.Graph.Authentication'; MinimumVersion = '2.0.0' },
+            @{ Name = 'Microsoft.Graph.Applications'; MinimumVersion = '2.0.0' },
+            @{ Name = 'powershell-yaml'; MinimumVersion = '0.4.7' }
+          )
+
+          foreach ($module in $requiredModules) {
+            $installedModule = Get-Module -ListAvailable -Name $module.Name |
+              Sort-Object Version -Descending |
+              Select-Object -First 1
+
+            if ($installedModule -and $installedModule.Version -ge ([version]$module.MinimumVersion)) {
+              Write-Host "Using cached module $($module.Name) $($installedModule.Version)"
+              continue
+            }
+
+            Write-Host "Installing $($module.Name) >= $($module.MinimumVersion)"
+            Install-Module `
+              -Name $module.Name `
+              -MinimumVersion $module.MinimumVersion `
+              -Force `
+              -Scope CurrentUser `
+              -AllowClobber `
+              -Repository PSGallery
+          }
+
+      - name: Refresh upstream data
+        run: npm run refresh:data
+
+      - name: Validate normalized snapshot
+        run: npm run validate:data -- --summary .generated/validation-summary.json
+
+      - name: Publish validation summary
+        run: |
+          echo '## Validation summary' >> $GITHUB_STEP_SUMMARY
+          cat .generated/validation-summary.json >> $GITHUB_STEP_SUMMARY
+
+      - name: Build site artifact
+        run: npm run build:site
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
