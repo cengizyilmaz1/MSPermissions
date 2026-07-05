@@ -17,7 +17,7 @@ Please **do not** open a public GitHub issue for security vulnerabilities.
 Instead, report privately through one of the following channels:
 
 - GitHub private vulnerability reporting:
-  [Report a vulnerability](https://github.com/cengizyilmaz1/Permissions/security/advisories/new)
+  [Report a vulnerability](https://github.com/cengizyilmaz1/MSPermissions/security/advisories/new)
 - Email: `contact@cengizyilmaz.net`
 
 When reporting, please include:

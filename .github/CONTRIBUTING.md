@@ -66,6 +66,6 @@ npm run build:site -- --input .generated/local-real/site-data.json --output docs
 
 ## Reporting bugs and requesting features
 
-Please use the [issue templates](https://github.com/cengizyilmaz1/Permissions/issues/new/choose).
+Please use the [issue templates](https://github.com/cengizyilmaz1/MSPermissions/issues/new/choose).
 For security-related reports, follow [SECURITY.md](SECURITY.md) instead of opening a
 public issue.

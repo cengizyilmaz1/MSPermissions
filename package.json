@@ -13,11 +13,11 @@
   ],
   "homepage": "https://permissions.cengizyilmaz.net/",
   "bugs": {
-    "url": "https://github.com/cengizyilmaz1/Permissions/issues"
+    "url": "https://github.com/cengizyilmaz1/MSPermissions/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cengizyilmaz1/Permissions.git"
+    "url": "git+https://github.com/cengizyilmaz1/MSPermissions.git"
   },
   "license": "MIT",
   "author": {

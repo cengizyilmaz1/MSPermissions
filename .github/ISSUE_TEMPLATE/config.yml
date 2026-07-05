@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security vulnerability
-    url: https://github.com/cengizyilmaz1/Permissions/security/advisories/new
+    url: https://github.com/cengizyilmaz1/MSPermissions/security/advisories/new
     about: Please report security issues privately, not as public issues.
   - name: Microsoft Graph permissions documentation
     url: https://learn.microsoft.com/graph/permissions-reference

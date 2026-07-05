@@ -98,7 +98,7 @@ const SOURCE_DOCS = {
     },
     custom: {
         label: 'Community maintained app list',
-        url: 'https://github.com/cengizyilmaz1/Permissions'
+        url: 'https://github.com/cengizyilmaz1/MSPermissions'
     }
 };
 
