@@ -65,7 +65,7 @@ jobs:
         run: npm ci
 
       - name: Azure login
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           client-id: ${{ vars.AZURE_CLIENT_ID }}
