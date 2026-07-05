@@ -5,7 +5,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 3 * * *'
+    # Every 2 days at 03:00 UTC
+    - cron: "0 3 */2 * *"
   workflow_dispatch:
 
 permissions:
@@ -14,7 +15,7 @@ permissions:
   id-token: write
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: "20"
   POWERSHELL_MODULE_CACHE_PATH: /home/runner/.local/share/powershell/Modules
   GRAPH_OPENAPI_CACHE_DIR: ${{ github.workspace }}/.cache/graph-openapi
   GRAPH_DOCS_CACHE_DIR: ${{ github.workspace }}/.cache/graph-docs
@@ -53,7 +54,7 @@ jobs:
           path: |
             ${{ env.GRAPH_OPENAPI_CACHE_DIR }}
             ${{ env.GRAPH_DOCS_CACHE_DIR }}
-          key: ${{ runner.os }}-data-sources-${{ hashFiles('.github/workflows/publish.yml', 'Script/powershell/Parse-GraphOpenAPI.ps1', 'Script/powershell/Parse-GraphOpenAPIProperties.ps1', 'Script/node/lib/graph-docs-parser.js') }}
+          key: ${{ runner.os }}-data-sources-${{ hashFiles('.github/workflows/publish.yml', 'scripts/node/lib/openapi-permissions.js', 'scripts/powershell/Parse-GraphOpenAPIProperties.ps1', 'scripts/node/lib/graph-docs-parser.js') }}
           restore-keys: |
             ${{ runner.os }}-data-sources-
 

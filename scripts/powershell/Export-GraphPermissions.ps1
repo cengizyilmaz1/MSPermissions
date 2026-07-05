@@ -7,7 +7,7 @@
     from the Microsoft Graph service principal with full details.
 
     .EXAMPLE
-    ./Script/powershell/Export-GraphPermissions.ps1
+    ./scripts/powershell/Export-GraphPermissions.ps1
 
     Creates a list of all Graph permissions with output written to .\data
 

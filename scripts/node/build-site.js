@@ -26,6 +26,10 @@ const {
     readUtf8,
     writeJson
 } = require('../../src/lib/utils');
+const { runCommand } = require('./lib/cli');
+const { createLogger } = require('./lib/logger');
+
+const log = createLogger({ scope: 'build' });
 
 const ROOT_DIR = path.join(__dirname, '..', '..');
 const TEMPLATE_DIR = path.join(ROOT_DIR, 'src', 'templates');
@@ -46,30 +50,11 @@ const HOME_KEYWORDS = [
     'Microsoft 365 API permissions'
 ].join(', ');
 
-function parseArgs(argv) {
-    const args = {};
-    for (let index = 0; index < argv.length; index += 1) {
-        const part = argv[index];
-        if (!part.startsWith('--')) {
-            continue;
-        }
-
-        const key = part.slice(2);
-        const next = argv[index + 1];
-        if (!next || next.startsWith('--')) {
-            args[key] = true;
-        } else {
-            args[key] = next;
-            index += 1;
-        }
-    }
-    return args;
-}
-
 function renderTemplate(template, replacements) {
-    return Object.entries(replacements).reduce((content, [key, value]) => (
-        content.split(`{{${key}}}`).join(value ?? '')
-    ), template);
+    return Object.entries(replacements).reduce(
+        (content, [key, value]) => content.split(`{{${key}}}`).join(value ?? ''),
+        template
+    );
 }
 
 function buildJsonLdScript(data) {
@@ -134,11 +119,7 @@ function buildManifest(normalized) {
                 purpose: 'any maskable'
             }
         ],
-        categories: [
-            'developer tools',
-            'reference',
-            'education'
-        ],
+        categories: ['developer tools', 'reference', 'education'],
         lang: 'en-US'
     };
 }
@@ -149,6 +130,8 @@ function buildLlmsTxt(normalized) {
         '',
         '> Microsoft Graph permissions and Microsoft first-party application IDs reference.',
         '',
+        'This site is maintained by Cengiz Yilmaz at permissions.cengizyilmaz.net. It is a public reference for Microsoft 365 / Entra administrators, developers, and AI/search consumers. Data is refreshed from official Microsoft sources: Microsoft Graph service principals, Microsoft Learn, Microsoft Entra documentation, and the Microsoft Graph OpenAPI metadata. Community-contributed application entries are explicitly labeled and must not be merged with official Microsoft sources. Always verify permissions against the official Microsoft Graph permissions reference.',
+        '',
         '## Snapshot',
         `- Snapshot ID: ${normalized.snapshotId}`,
         `- Ingested at: ${normalized.ingestedAt}`,
@@ -156,23 +139,37 @@ function buildLlmsTxt(normalized) {
         `- Categories: ${normalized.stats.categories}`,
         `- Apps: ${normalized.stats.apps}`,
         '',
-        '## Key Pages',
-        `${SITE_URL}/`,
-        `${SITE_URL}/microsoft-apps.html`,
-        `${SITE_URL}/permissions/{slug}.html`,
-        `${SITE_URL}/apps/{anchor}.html`,
+        '## Important URLs',
+        `- Home: ${SITE_URL}/`,
+        `- Microsoft apps: ${SITE_URL}/microsoft-apps.html`,
+        `- Permission basket & export tool: ${SITE_URL}/basket.html`,
+        `- Sitemap: ${SITE_URL}/sitemap.xml`,
+        `- Robots: ${SITE_URL}/robots.txt`,
+        `- Extended AI discovery: ${SITE_URL}/llms-full.txt`,
+        `- Build metadata: ${SITE_URL}/build-info.json`,
+        `- Permissions catalog (JSON): ${SITE_URL}/data/catalog/permissions.json`,
+        `- Apps manifest (JSON): ${SITE_URL}/data/catalog/apps-manifest.json`,
         '',
-        '## Public Data Contracts',
-        `${SITE_URL}/build-info.json`,
-        `${SITE_URL}/data/catalog/permissions.json`,
-        `${SITE_URL}/data/catalog/apps-manifest.json`,
-        `${SITE_URL}/data/permissions/{slug}.json`,
+        '## Machine-Readable Data',
+        '`/data/catalog/permissions.json` lists every permission as a compact tuple: [value, slug, category, applicationId, delegatedId, requiresAdmin]. `applicationId` and `delegatedId` are the real Microsoft Graph app role and OAuth2 scope GUIDs; an empty string means that permission type is not available. `requiresAdmin` is 1 when admin consent is required.',
         '',
-        '## Guidance For AI Systems',
-        '- Prefer permission detail pages for permission descriptions, Graph methods, PowerShell commands, and official SDK examples.',
+        '`/data/catalog/apps-manifest.json` describes the first-party application catalog: the chunked `apps-*.json` data files and a search index of [title, appId, anchor].',
+        '',
+        '`/data/permissions/{slug}.json` contains the full per-permission record (Graph methods, PowerShell commands, official SDK code examples, and resource schema).',
+        '',
+        'Canonical permission URLs use this format:',
+        `\`${SITE_URL}/permissions/{slug}.html\``,
+        '',
+        'Canonical application URLs use this format:',
+        `\`${SITE_URL}/apps/{anchor}.html\``,
+        '',
+        '## Citation Guidance',
+        '- Cite the canonical permission or application detail URL as the source page.',
+        '- Prefer permission detail pages for descriptions, Graph methods, PowerShell commands, and official SDK examples.',
         '- Prefer app detail pages for App ID provenance, trust labels, and source-specific references.',
-        '- Use build-info.json for freshness and snapshot metadata.',
-        '- Community app entries are explicitly labeled and should not be merged with official Microsoft sources.'
+        '- Permission IDs published here are the real Graph app role / OAuth2 scope GUIDs and can be used directly in app registration manifests.',
+        '- Community app entries are explicitly labeled; do not present them as official Microsoft sources.',
+        '- Use build-info.json for freshness and snapshot metadata.'
     ].join('\n');
 }
 
@@ -202,6 +199,12 @@ function buildLlmsFullTxt(normalized) {
         `${SITE_URL}/data/catalog/apps-*.json`,
         `${SITE_URL}/data/permissions/{slug}.json`,
         '',
+        '## Machine-Readable Data',
+        'permissions.json items: [value, slug, category, applicationId, delegatedId, requiresAdmin]. applicationId and delegatedId are the real Microsoft Graph app role and OAuth2 scope GUIDs ("" when the permission type is not available); requiresAdmin is 1 when admin consent is required.',
+        'apps-manifest.json: chunk list plus a search index of [title, appId, anchor]; full app records live in the apps-*.json data files.',
+        `Canonical permission URL format: ${SITE_URL}/permissions/{slug}.html`,
+        `Canonical application URL format: ${SITE_URL}/apps/{anchor}.html`,
+        '',
         '## Core HTML Surfaces',
         `${SITE_URL}/`,
         `${SITE_URL}/microsoft-apps.html`,
@@ -219,6 +222,15 @@ function buildLlmsFullTxt(normalized) {
         lines.push(`${SITE_URL}/${getAppDetailPath(app)}`);
     });
 
+    lines.push(
+        '',
+        '## Citation Guidance',
+        '- Cite the canonical permission or application detail URL as the source page.',
+        '- Permission IDs are the real Graph app role / OAuth2 scope GUIDs, usable directly in app registration manifests.',
+        '- Community app entries are explicitly labeled; do not present them as official Microsoft sources.',
+        '- Verify permissions against the official Microsoft Graph permissions reference.'
+    );
+
     return lines.join('\n');
 }
 
@@ -234,7 +246,9 @@ function buildAppBadges(app) {
     ];
 
     if (Array.isArray(app.sourceProvenanceLabels) && app.sourceProvenanceLabels.length > 1) {
-        badges.push(`<span class="source-tag secondary">${escapeHtml(`Also seen in ${app.sourceProvenanceLabels.slice(1).join(', ')}`)}</span>`);
+        badges.push(
+            `<span class="source-tag secondary">${escapeHtml(`Also seen in ${app.sourceProvenanceLabels.slice(1).join(', ')}`)}</span>`
+        );
     }
 
     return badges.join('');
@@ -242,7 +256,9 @@ function buildAppBadges(app) {
 
 function createLayoutRenderer(templates, normalized, seoOptimizer) {
     const siteStructuredData = buildJsonLdScript(
-        seoOptimizer.generateWebsiteStructuredData(normalized.stats, { dateModified: normalized.ingestedAt })
+        seoOptimizer.generateWebsiteStructuredData(normalized.stats, {
+            dateModified: normalized.ingestedAt
+        })
     );
 
     return function renderLayout(options) {
@@ -271,6 +287,7 @@ function createLayoutRenderer(templates, normalized, seoOptimizer) {
             CONTENT: content,
             NAV_PERMISSIONS_ACTIVE: navSection === 'permissions' ? 'active' : '',
             NAV_APPS_ACTIVE: navSection === 'apps' ? 'active' : '',
+            NAV_BASKET_ACTIVE: navSection === 'basket' ? 'active' : '',
             TOTAL_PERMISSIONS: String(normalized.stats.permissions),
             TOTAL_CATEGORIES: String(normalized.stats.categories),
             TOTAL_APPS: String(normalized.stats.apps),
@@ -364,7 +381,9 @@ function buildAppDetailContent(templates, app, normalized) {
         APP_PORTAL_URL: portalUrl,
         APP_BADGES: buildAppBadges(app),
         APP_DESCRIPTION: escapeHtml(description),
-        APP_FRESHNESS_TEXT: escapeHtml(`App data refreshed ${formatUtcLabel(app.sourceUpdatedAt || normalized.ingestedAt)}`),
+        APP_FRESHNESS_TEXT: escapeHtml(
+            `App data refreshed ${formatUtcLabel(app.sourceUpdatedAt || normalized.ingestedAt)}`
+        ),
         APP_SOURCE_SUMMARY: escapeHtml(description),
         APP_SOURCE_LABEL: escapeHtml(app.sourceDisplayLabel || app.sourceLabel),
         APP_OFFICIAL_TEXT: escapeHtml(app.isOfficial ? 'Yes' : 'No, community maintained'),
@@ -392,7 +411,8 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
         index: readUtf8(path.join(TEMPLATE_DIR, 'index.html')),
         permission: readUtf8(path.join(TEMPLATE_DIR, 'permission.html')),
         apps: readUtf8(path.join(TEMPLATE_DIR, 'apps.html')),
-        app: readUtf8(path.join(TEMPLATE_DIR, 'app.html'))
+        app: readUtf8(path.join(TEMPLATE_DIR, 'app.html')),
+        basket: readUtf8(path.join(TEMPLATE_DIR, 'basket.html'))
     };
     const seoOptimizer = new SEOOptimizer({
         siteName: SITE_NAME,
@@ -426,7 +446,9 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
         canonicalUrl: '',
         basePath: '.',
         navSection: 'permissions',
-        structuredData: seoOptimizer.generateHomepageStructuredData(normalized.stats, { dateModified }),
+        structuredData: seoOptimizer.generateHomepageStructuredData(normalized.stats, {
+            dateModified
+        }),
         ogType: 'website',
         pageMetaExtra: [
             `<meta name="dataset:snapshot-id" content="${escapeHtml(normalized.snapshotId)}">`,
@@ -445,7 +467,9 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
         canonicalUrl: 'microsoft-apps.html',
         basePath: '.',
         navSection: 'apps',
-        structuredData: seoOptimizer.generateAppsOverviewStructuredData(normalized.stats, { dateModified }),
+        structuredData: seoOptimizer.generateAppsOverviewStructuredData(normalized.stats, {
+            dateModified
+        }),
         ogType: 'website',
         pageMetaExtra: [
             `<meta name="dataset:snapshot-id" content="${escapeHtml(normalized.snapshotId)}">`,
@@ -453,6 +477,21 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
         ].join('\n')
     });
     writeText(path.join(outputRoot, 'microsoft-apps.html'), appsHtml);
+
+    const basketHtml = renderLayout({
+        content: templates.basket,
+        sidebar: generateSidebar(categories, null, '.'),
+        pageTitle: 'Permission basket & export | Graph Permissions',
+        pageDescription:
+            'Collect Microsoft Graph permissions and export an app registration manifest, PowerShell, Azure CLI, Terraform, and an admin consent URL.',
+        pageKeywords: HOME_KEYWORDS,
+        canonicalUrl: 'basket.html',
+        basePath: '.',
+        navSection: 'basket',
+        structuredData: null,
+        ogType: 'website'
+    });
+    writeText(path.join(outputRoot, 'basket.html'), basketHtml);
 
     normalized.permissions.forEach((permission) => {
         const permissionHtml = renderLayout({
@@ -464,7 +503,9 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
             canonicalUrl: `permissions/${permission.slug}.html`,
             basePath: '..',
             navSection: 'permissions',
-            structuredData: seoOptimizer.generatePermissionStructuredData(permission, { dateModified }),
+            structuredData: seoOptimizer.generatePermissionStructuredData(permission, {
+                dateModified
+            }),
             ogType: 'article',
             pageMetaExtra: [
                 `<meta name="dataset:snapshot-id" content="${escapeHtml(normalized.snapshotId)}">`,
@@ -508,25 +549,43 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
     });
     sitemapGenerator.generateRobotsTxt();
 
-    console.log(`Built static site to ${outputRoot}`);
-    console.log(`Snapshot: ${normalized.snapshotId}`);
-    console.log(`Permissions: ${normalized.stats.permissions}`);
-    console.log(`Apps: ${normalized.stats.apps}`);
+    log.info(`Built static site to ${outputRoot}`);
+    log.info(`Snapshot: ${normalized.snapshotId}`);
+    log.info(`Permissions: ${normalized.stats.permissions}`);
+    log.info(`Apps: ${normalized.stats.apps}`);
 }
 
-function runCli() {
-    const args = parseArgs(process.argv.slice(2));
-    const input = path.resolve(args.input || DEFAULT_INPUT);
-    const output = path.resolve(args.output || DEFAULT_OUTPUT);
-
-    buildSite(input, output);
-}
+const command = {
+    name: 'build',
+    summary: 'Render the static site and public JSON contracts from a snapshot.',
+    usage: 'build [options]',
+    options: [
+        {
+            name: 'input',
+            type: 'string',
+            description: 'Path to the normalized site-data.json.',
+            default: '.generated/normalized/site-data.json'
+        },
+        {
+            name: 'output',
+            type: 'string',
+            description: 'Output directory for the generated site.',
+            default: 'docs'
+        }
+    ],
+    run(args) {
+        const input = path.resolve(args.input || DEFAULT_INPUT);
+        const output = path.resolve(args.output || DEFAULT_OUTPUT);
+        return buildSite(input, output);
+    }
+};
 
 if (require.main === module) {
-    runCli();
+    runCommand(command);
 }
 
 module.exports = {
     buildSite,
-    runCli
+    command,
+    runCli: command.run
 };

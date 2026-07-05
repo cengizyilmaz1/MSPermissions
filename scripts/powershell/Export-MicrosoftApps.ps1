@@ -11,7 +11,7 @@
 
         This script connects to Microsoft Graph with the scope Application.Read.All when required.
         .EXAMPLE
-        ./Script/powershell/Export-MicrosoftApps.ps1
+        ./scripts/powershell/Export-MicrosoftApps.ps1
 
         Creates a list of Microsoft first party apps with output written to .\data and custom data loaded from ./customdata/OtherMicrosoftApps.csv
         Assumes the root of the repo is the current working directory

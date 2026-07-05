@@ -24,17 +24,46 @@ The build flow is:
 5. Build static HTML, JSON contracts, sitemaps, and AI-discovery files.
 6. Upload the generated `docs/` artifact to GitHub Pages.
 
+```mermaid
+flowchart TD
+    T1["Push to main"] --> W
+    T2["Schedule - every 2 days at 03:00 UTC"] --> W
+    T3["Manual dispatch"] --> W
+    W(["publish.yml workflow"]) --> R
+
+    subgraph SRC["Upstream sources - official Microsoft"]
+        direction LR
+        A1["Graph service principals<br/>permissions + first-party apps"]
+        A2["Graph OpenAPI<br/>v1.0 + beta"]
+        A3["microsoft-graph-docs<br/>methods, PowerShell, SDK"]
+        A4["Entra known-guids.json"]
+        A5["community CSV<br/>explicitly labeled"]
+    end
+
+    SRC --> R
+    R["refresh - fetch + parse"] --> RAW["Raw inputs - data/"]
+    RAW --> N["normalize - site-data.json snapshot"]
+    N --> V{"validate<br/>freshness, duplicates, counts"}
+    V -->|pass| B["build<br/>HTML, JSON, sitemaps, llms.txt"]
+    V -->|fail| X["Stop the run<br/>no fabricated data"]
+    B --> D["docs/ artifact"]
+    D --> P(["GitHub Pages"])
+```
+
 Production hosting stays static, but production content is based on scheduled upstream refreshes instead of hand-maintained repo data.
 
 ## Repository layout
 
 ```text
 Permissions/
-|-- .github/workflows/         CI and production publish workflows
+|-- .github/                   Community health files, issue/PR templates, workflows
+|   |-- workflows/             CI (lint/format/test) and production publish pipelines
+|   |-- ISSUE_TEMPLATE/        Structured bug and feature request forms
+|   `-- dependabot.yml         Automated dependency and action updates
 |-- customdata/                Community-maintained application list
 |-- data/                      Canonical raw inputs used by local normalize/build runs
 |-- fixtures/raw/              Small fixture dataset for CI and tests
-|-- Script/
+|-- scripts/
 |   |-- node/                  Node.js refresh, normalize, validate, and build entry points
 |   |   `-- lib/               Microsoft Learn parsing helpers
 |   `-- powershell/            Graph/OpenAPI fetch and parse scripts
@@ -46,14 +75,18 @@ Permissions/
 |   `-- sitemap-generator.js   Sitemap and robots generation
 |-- test/                      Fixture-based tests
 |-- docs/                      Generated output only
-`-- .generated/                Local generated snapshots and validation summaries
+|-- .generated/                Local generated snapshots and validation summaries
+|-- eslint.config.js           ESLint flat configuration
+|-- .prettierrc.json           Prettier formatting rules
+|-- .editorconfig              Editor defaults shared across the team
+`-- .nvmrc                     Pinned Node.js version
 ```
 
 ## Source of truth vs local-only folders
 
 These folders are important to distinguish:
 
-- `src/` and `Script/` are source code.
+- `src/` and `scripts/` are source code.
 - `data/` is the canonical raw input location for local normalize/build commands.
 - `fixtures/raw/` is the CI-safe fixture dataset and should stay in the repo for deterministic tests.
 - `docs/` is generated output and should be treated as an artifact.
@@ -80,6 +113,20 @@ Install dependencies:
 ```bash
 npm install
 ```
+
+### Pipeline CLI
+
+All pipeline steps are exposed through a single, self-documenting entry point:
+
+```bash
+node scripts/cli.js --help              # list commands
+node scripts/cli.js <command> --help    # options for one command
+```
+
+Available commands: `refresh`, `refresh-docs`, `normalize`, `validate`, `build`.
+Global flags: `--verbose` / `--quiet` control log verbosity (also via `LOG_LEVEL`).
+The individual modules under `scripts/node/` remain runnable directly for backward
+compatibility, and the `npm run` scripts below are thin wrappers over this CLI.
 
 Refresh Microsoft Learn permission methods, PowerShell snippets, and official SDK code examples:
 
@@ -124,6 +171,29 @@ npm test
 npm run build:fixture
 ```
 
+## Code quality and tooling
+
+The repository ships with an enterprise-grade quality toolchain:
+
+- **ESLint** (flat config, `eslint.config.js`) for static analysis of Node and browser code.
+- **Prettier** (`.prettierrc.json`) for deterministic formatting.
+- **EditorConfig** (`.editorconfig`) for consistent editor defaults.
+- **`.nvmrc`** pinning the supported Node.js version.
+- **Dependabot** for weekly dependency and GitHub Actions updates.
+
+Common commands:
+
+```bash
+npm run lint          # static analysis
+npm run lint:fix      # auto-fix lint issues
+npm run format        # apply Prettier formatting
+npm run format:check  # verify formatting without writing
+npm run check         # lint + format check + tests + fixture build
+```
+
+Run `npm run check` before opening a pull request. The CI workflow enforces the
+same gates on every push and pull request.
+
 ## Data sources
 
 The production dataset currently combines:
@@ -134,7 +204,7 @@ The production dataset currently combines:
 - Microsoft Learn PowerShell snippets
 - Microsoft Learn official SDK snippets for C#, JavaScript, Python, and PowerShell
 - Entra Docs known GUID catalog
-- Microsoft Graph OpenAPI method metadata
+- Microsoft Graph OpenAPI method metadata (mined in Node by `scripts/node/lib/openapi-permissions.js`)
 - Microsoft Graph OpenAPI schema metadata
 - `customdata/OtherMicrosoftApps.csv` for explicitly labeled community entries
 
@@ -192,12 +262,15 @@ The site now publishes stronger search and AI-discovery signals:
 Runs on pull requests and pushes.
 
 - installs dependencies
+- runs ESLint (`npm run lint`)
+- checks Prettier formatting (`npm run format:check`)
 - runs tests
-- builds the fixture site only
+- builds the fixture site
+- audits production dependencies (non-blocking)
 
 ### `publish.yml`
 
-Runs on pushes to `main`, every 6 hours, and on manual dispatch.
+Runs on pushes to `main`, on a schedule every 2 days at 03:00 UTC (`cron: "0 3 */2 * *"`), and on manual dispatch.
 
 - refreshes upstream data
 - validates the normalized snapshot
@@ -257,19 +330,19 @@ npm run refresh:methods
 Normalize existing raw files from `data/`:
 
 ```bash
-node Script/node/normalize-data.js --raw-dir data --output .generated/local-real
+node scripts/node/normalize-data.js --raw-dir data --output .generated/local-real
 ```
 
 Validate them:
 
 ```bash
-node Script/node/validate-data.js --input .generated/local-real/site-data.json --summary .generated/local-real/validation-summary.json
+node scripts/node/validate-data.js --input .generated/local-real/site-data.json --summary .generated/local-real/validation-summary.json
 ```
 
 Build the local static site:
 
 ```bash
-node Script/node/build-site.js --input .generated/local-real/site-data.json --output docs
+node scripts/node/build-site.js --input .generated/local-real/site-data.json --output docs
 ```
 
 Serve and inspect:

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/cengizyilmaz1/Permissions/security/advisories/new
+    about: Please report security issues privately, not as public issues.
+  - name: Microsoft Graph permissions documentation
+    url: https://learn.microsoft.com/graph/permissions-reference
+    about: Official Microsoft reference for Graph permissions.
+  - name: Project author
+    url: https://cengizyilmaz.net/
+    about: Blog and contact information.

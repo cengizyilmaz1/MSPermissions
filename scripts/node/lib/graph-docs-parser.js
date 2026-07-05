@@ -57,11 +57,18 @@ function cloneGraphDocs(repoDir) {
     if (fs.existsSync(path.join(repoDir, '.git'))) {
         runGit(['fetch', '--depth', '1', 'origin', 'main'], { cwd: repoDir });
         runGit(['reset', '--hard', 'origin/main'], { cwd: repoDir });
-        runGit([
-            'sparse-checkout',
-            'set',
-            ...VERSION_SPECS.flatMap((spec) => [spec.docsDir, spec.resourceDir, spec.includeRoot])
-        ], { cwd: repoDir });
+        runGit(
+            [
+                'sparse-checkout',
+                'set',
+                ...VERSION_SPECS.flatMap((spec) => [
+                    spec.docsDir,
+                    spec.resourceDir,
+                    spec.includeRoot
+                ])
+            ],
+            { cwd: repoDir }
+        );
         return;
     }
 
@@ -78,11 +85,14 @@ function cloneGraphDocs(repoDir) {
         GRAPH_DOCS_REPO_URL,
         repoDir
     ]);
-    runGit([
-        'sparse-checkout',
-        'set',
-        ...VERSION_SPECS.flatMap((spec) => [spec.docsDir, spec.resourceDir, spec.includeRoot])
-    ], { cwd: repoDir });
+    runGit(
+        [
+            'sparse-checkout',
+            'set',
+            ...VERSION_SPECS.flatMap((spec) => [spec.docsDir, spec.resourceDir, spec.includeRoot])
+        ],
+        { cwd: repoDir }
+    );
 }
 
 function createShortTempRoot() {
@@ -133,9 +143,7 @@ function normalizeMarkdownStructure(value) {
         return '';
     }
 
-    let normalized = String(value)
-        .replace(/\r\n/g, '\n')
-        .replace(/\r/g, '\n');
+    let normalized = String(value).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
     normalized = normalized
         .replace(/^\s*---\s*([\s\S]*?)\s*---\s*/m, (match) => {
@@ -153,11 +161,7 @@ function normalizeMarkdownStructure(value) {
 }
 
 function normalizeHeadingText(value) {
-    return stripMarkdown(value)
-        .toLowerCase()
-        .replace(/[:`]/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
+    return stripMarkdown(value).toLowerCase().replace(/[:`]/g, '').replace(/\s+/g, ' ').trim();
 }
 
 function splitTableRow(line) {
@@ -183,10 +187,11 @@ function extractSection(markdown, headingText) {
 
         const [, hashes, rawHeading] = headingMatch;
         const normalizedHeading = normalizeHeadingText(rawHeading);
-        const matchesTarget = normalizedHeading === target
-            || normalizedHeading.startsWith(`${target} `)
-            || normalizedHeading.startsWith(`${target} -`)
-            || normalizedHeading.startsWith(`${target}:`);
+        const matchesTarget =
+            normalizedHeading === target ||
+            normalizedHeading.startsWith(`${target} `) ||
+            normalizedHeading.startsWith(`${target} -`) ||
+            normalizedHeading.startsWith(`${target}:`);
 
         if (matchesTarget) {
             startIndex = index + 1;
@@ -265,7 +270,8 @@ function extractMarkdownTables(sectionText) {
 }
 
 function extractPermissionTokens(text) {
-    const matches = stripMarkdown(text).match(/\b[A-Za-z][A-Za-z0-9-]*(?:\.[A-Za-z0-9-]+)+\b/g) || [];
+    const matches =
+        stripMarkdown(text).match(/\b[A-Za-z][A-Za-z0-9-]*(?:\.[A-Za-z0-9-]+)+\b/g) || [];
     const seen = new Set();
     const results = [];
 
@@ -288,11 +294,16 @@ function parsePermissionTable(tableLines) {
 
     const headers = splitTableRow(tableLines[0]).map((cell) => stripMarkdown(cell).toLowerCase());
     const permissionTypeIndex = headers.findIndex((cell) => cell.includes('permission type'));
-    const orderedPermissionsIndex = headers.findIndex((cell) => cell.includes('permissions') && cell.includes('least to most privileged'));
+    const orderedPermissionsIndex = headers.findIndex(
+        (cell) => cell.includes('permissions') && cell.includes('least to most privileged')
+    );
     const leastPrivilegeIndex = headers.findIndex((cell) => cell.includes('least privileged'));
     const higherPrivilegeIndex = headers.findIndex((cell) => cell.includes('higher privileged'));
 
-    if (permissionTypeIndex === -1 || (orderedPermissionsIndex === -1 && leastPrivilegeIndex === -1)) {
+    if (
+        permissionTypeIndex === -1 ||
+        (orderedPermissionsIndex === -1 && leastPrivilegeIndex === -1)
+    ) {
         return [];
     }
 
@@ -327,7 +338,10 @@ function parsePermissionTable(tableLines) {
         }
 
         const leastPermissions = extractPermissionTokens(cells[leastPrivilegeIndex] || '');
-        const higherPermissions = higherPrivilegeIndex === -1 ? [] : extractPermissionTokens(cells[higherPrivilegeIndex] || '');
+        const higherPermissions =
+            higherPrivilegeIndex === -1
+                ? []
+                : extractPermissionTokens(cells[higherPrivilegeIndex] || '');
 
         leastPermissions.forEach((permission) => {
             rows.push({
@@ -414,7 +428,9 @@ function extractHttpRequests(markdown) {
 
     httpBlocks.forEach((block) => {
         for (const line of block.split(/\r?\n/)) {
-            const methodMatch = line.trim().match(/^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+(.+)$/i);
+            const methodMatch = line
+                .trim()
+                .match(/^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+(.+)$/i);
             if (!methodMatch) {
                 continue;
             }
@@ -474,7 +490,9 @@ function extractFrontMatterValue(markdown, key) {
         return '';
     }
 
-    return String(match[1] || '').replace(/^["']|["']$/g, '').trim();
+    return String(match[1] || '')
+        .replace(/^["']|["']$/g, '')
+        .trim();
 }
 
 function removeFrontMatter(markdown) {
@@ -515,7 +533,10 @@ function extractIntroText(markdown) {
 }
 
 function extractSnippetIncludePaths(markdown, markdownFile, language) {
-    const pattern = new RegExp(`\\[!INCLUDE\\s+\\[[^\\]]*\\]\\(([^)\\r\\n]*snippets[\\\\/]+${language}[\\\\/][^)\\r\\n]+\\.md)\\)\\]`, 'gi');
+    const pattern = new RegExp(
+        `\\[!INCLUDE\\s+\\[[^\\]]*\\]\\(([^)\\r\\n]*snippets[\\\\/]+${language}[\\\\/][^)\\r\\n]+\\.md)\\)\\]`,
+        'gi'
+    );
     const seen = new Set();
     const results = [];
     const normalized = normalizeMarkdownStructure(markdown);
@@ -533,7 +554,9 @@ function extractSnippetIncludePaths(markdown, markdownFile, language) {
 }
 
 function normalizeCodeFenceLanguage(language) {
-    const value = String(language || '').toLowerCase().trim();
+    const value = String(language || '')
+        .toLowerCase()
+        .trim();
 
     if (['c#', 'csharp', 'cs', 'dotnet'].includes(value)) {
         return 'csharp';
@@ -577,7 +600,9 @@ function extractCodeFences(markdown) {
 function extractFirstCodeFence(markdown, preferredLanguage = null) {
     const fences = extractCodeFences(markdown);
     if (preferredLanguage) {
-        const preferred = fences.find((entry) => entry.language === normalizeCodeFenceLanguage(preferredLanguage));
+        const preferred = fences.find(
+            (entry) => entry.language === normalizeCodeFenceLanguage(preferredLanguage)
+        );
         if (preferred) {
             return preferred.code;
         }
@@ -616,8 +641,12 @@ function parseNamedTable(sectionText, firstColumnMatchers) {
             return;
         }
 
-        const headers = splitTableRow(tableLines[0]).map((cell) => stripMarkdown(cell).toLowerCase());
-        const firstIndex = headers.findIndex((cell) => firstColumnMatchers.some((matcher) => cell.includes(matcher)));
+        const headers = splitTableRow(tableLines[0]).map((cell) =>
+            stripMarkdown(cell).toLowerCase()
+        );
+        const firstIndex = headers.findIndex((cell) =>
+            firstColumnMatchers.some((matcher) => cell.includes(matcher))
+        );
         const typeIndex = headers.findIndex((cell) => cell.includes('type'));
         const descriptionIndex = headers.findIndex((cell) => cell.includes('description'));
 
@@ -697,15 +726,26 @@ function buildResourceDocsFromDocsTree(graphDocsRoot) {
             const propertiesSection = extractSection(markdown, 'Properties');
             const relationshipsSection = extractSection(markdown, 'Relationships');
             const properties = propertiesSection
-                ? parseNamedTable(expandMarkdownIncludes(propertiesSection, markdownFile), ['property', 'name'])
+                ? parseNamedTable(expandMarkdownIncludes(propertiesSection, markdownFile), [
+                      'property',
+                      'name'
+                  ])
                 : [];
             const relationships = relationshipsSection
-                ? parseNamedTable(expandMarkdownIncludes(relationshipsSection, markdownFile), ['relationship', 'name'])
+                ? parseNamedTable(expandMarkdownIncludes(relationshipsSection, markdownFile), [
+                      'relationship',
+                      'name'
+                  ])
                 : [];
             const jsonRepresentation = extractJsonRepresentation(markdown, markdownFile);
             const description = extractIntroText(markdown);
 
-            if (properties.length === 0 && relationships.length === 0 && !jsonRepresentation && !description) {
+            if (
+                properties.length === 0 &&
+                relationships.length === 0 &&
+                !jsonRepresentation &&
+                !description
+            ) {
                 continue;
             }
 
@@ -791,25 +831,33 @@ function addCodeExampleMapping(registry, permission, version, language, entry) {
 }
 
 function compareCodeExamples(left, right) {
-    return Number(Boolean(right.isLeastPrivilege)) - Number(Boolean(left.isLeastPrivilege))
-        || String(left.title || '').localeCompare(String(right.title || ''))
-        || String(left.endpoint || '').localeCompare(String(right.endpoint || ''));
+    return (
+        Number(Boolean(right.isLeastPrivilege)) - Number(Boolean(left.isLeastPrivilege)) ||
+        String(left.title || '').localeCompare(String(right.title || '')) ||
+        String(left.endpoint || '').localeCompare(String(right.endpoint || ''))
+    );
 }
 
 function finalizeCodeRegistry(registry) {
     const results = {};
 
-    for (const permission of Array.from(registry.keys()).sort((left, right) => left.localeCompare(right))) {
+    for (const permission of Array.from(registry.keys()).sort((left, right) =>
+        left.localeCompare(right)
+    )) {
         const versionBuckets = registry.get(permission);
         results[permission] = {
-            v1: Object.fromEntries(CODE_LANGUAGES.map((language) => [
-                language,
-                Array.from(versionBuckets.v1[language].values()).sort(compareCodeExamples)
-            ])),
-            beta: Object.fromEntries(CODE_LANGUAGES.map((language) => [
-                language,
-                Array.from(versionBuckets.beta[language].values()).sort(compareCodeExamples)
-            ]))
+            v1: Object.fromEntries(
+                CODE_LANGUAGES.map((language) => [
+                    language,
+                    Array.from(versionBuckets.v1[language].values()).sort(compareCodeExamples)
+                ])
+            ),
+            beta: Object.fromEntries(
+                CODE_LANGUAGES.map((language) => [
+                    language,
+                    Array.from(versionBuckets.beta[language].values()).sort(compareCodeExamples)
+                ])
+            )
         };
     }
 
@@ -817,16 +865,25 @@ function finalizeCodeRegistry(registry) {
 }
 
 function countCodeExamples(data) {
-    return Object.values(data).reduce((total, permissionEntry) =>
-        total
-        + CODE_LANGUAGES.reduce((languageTotal, language) =>
-            languageTotal
-            + (permissionEntry.v1?.[language] || []).length
-            + (permissionEntry.beta?.[language] || []).length, 0), 0);
+    return Object.values(data).reduce(
+        (total, permissionEntry) =>
+            total +
+            CODE_LANGUAGES.reduce(
+                (languageTotal, language) =>
+                    languageTotal +
+                    (permissionEntry.v1?.[language] || []).length +
+                    (permissionEntry.beta?.[language] || []).length,
+                0
+            ),
+        0
+    );
 }
 
 function extractPowerShellCommands(code) {
-    const matches = code.match(/\b(?:Get|New|Set|Update|Remove|Invoke|Find|Test|Connect|Add)-Mg[A-Za-z0-9]+\b/g) || [];
+    const matches =
+        code.match(
+            /\b(?:Get|New|Set|Update|Remove|Invoke|Find|Test|Connect|Add)-Mg[A-Za-z0-9]+\b/g
+        ) || [];
     const seen = new Set();
     const results = [];
 
@@ -901,15 +958,19 @@ function compareApiMappings(left, right) {
 }
 
 function comparePowerShellMappings(left, right) {
-    return left.command.localeCompare(right.command)
-        || String(left.endpoint || '').localeCompare(String(right.endpoint || ''))
-        || String(left.title || '').localeCompare(String(right.title || ''));
+    return (
+        left.command.localeCompare(right.command) ||
+        String(left.endpoint || '').localeCompare(String(right.endpoint || '')) ||
+        String(left.title || '').localeCompare(String(right.title || ''))
+    );
 }
 
 function finalizeRegistry(registry, comparator) {
     const results = {};
 
-    for (const permission of Array.from(registry.keys()).sort((left, right) => left.localeCompare(right))) {
+    for (const permission of Array.from(registry.keys()).sort((left, right) =>
+        left.localeCompare(right)
+    )) {
         const versionBuckets = registry.get(permission);
         results[permission] = {
             v1: Array.from(versionBuckets.v1.values()).sort(comparator),
@@ -921,8 +982,10 @@ function finalizeRegistry(registry, comparator) {
 }
 
 function countMappings(data) {
-    return Object.values(data).reduce((total, entry) =>
-        total + (entry.v1 || []).length + (entry.beta || []).length, 0);
+    return Object.values(data).reduce(
+        (total, entry) => total + (entry.v1 || []).length + (entry.beta || []).length,
+        0
+    );
 }
 
 function buildPermissionMethodsFromDocsTree(graphDocsRoot) {
@@ -1035,12 +1098,17 @@ function buildPermissionPowerShellFromDocsTree(graphDocsRoot) {
 
             permissions.forEach((permissionDescriptor) => {
                 snippetEntries.forEach((entry) => {
-                    addPowerShellMapping(registry, permissionDescriptor.permission, versionSpec.key, {
-                        ...entry,
-                        supportsDelegated: permissionDescriptor.supportsDelegated,
-                        supportsApplication: permissionDescriptor.supportsApplication,
-                        isLeastPrivilege: permissionDescriptor.isLeastPrivilege
-                    });
+                    addPowerShellMapping(
+                        registry,
+                        permissionDescriptor.permission,
+                        versionSpec.key,
+                        {
+                            ...entry,
+                            supportsDelegated: permissionDescriptor.supportsDelegated,
+                            supportsApplication: permissionDescriptor.supportsApplication,
+                            isLeastPrivilege: permissionDescriptor.isLeastPrivilege
+                        }
+                    );
                 });
             });
         }
@@ -1083,21 +1151,23 @@ function buildPermissionCodeExamplesFromDocsTree(graphDocsRoot) {
 
             CODE_LANGUAGES.forEach((language) => {
                 const seenCode = new Set();
-                extractSnippetIncludePaths(markdown, markdownFile, language).forEach((snippetPath) => {
-                    const code = extractFirstCodeFence(readUtf8(snippetPath), language);
-                    if (!code) {
-                        return;
-                    }
+                extractSnippetIncludePaths(markdown, markdownFile, language).forEach(
+                    (snippetPath) => {
+                        const code = extractFirstCodeFence(readUtf8(snippetPath), language);
+                        if (!code) {
+                            return;
+                        }
 
-                    seenCode.add(code);
-                    snippetEntries.push({
-                        language,
-                        endpoint,
-                        title,
-                        docLink,
-                        code
-                    });
-                });
+                        seenCode.add(code);
+                        snippetEntries.push({
+                            language,
+                            endpoint,
+                            title,
+                            docLink,
+                            code
+                        });
+                    }
+                );
 
                 extractInlineCodeEntries(markdown, language).forEach((code) => {
                     if (seenCode.has(code)) {
@@ -1122,15 +1192,21 @@ function buildPermissionCodeExamplesFromDocsTree(graphDocsRoot) {
 
             permissions.forEach((permissionDescriptor) => {
                 snippetEntries.forEach((entry) => {
-                    addCodeExampleMapping(registry, permissionDescriptor.permission, versionSpec.key, entry.language, {
-                        endpoint: entry.endpoint,
-                        title: entry.title,
-                        docLink: entry.docLink,
-                        code: entry.code,
-                        supportsDelegated: permissionDescriptor.supportsDelegated,
-                        supportsApplication: permissionDescriptor.supportsApplication,
-                        isLeastPrivilege: permissionDescriptor.isLeastPrivilege
-                    });
+                    addCodeExampleMapping(
+                        registry,
+                        permissionDescriptor.permission,
+                        versionSpec.key,
+                        entry.language,
+                        {
+                            endpoint: entry.endpoint,
+                            title: entry.title,
+                            docLink: entry.docLink,
+                            code: entry.code,
+                            supportsDelegated: permissionDescriptor.supportsDelegated,
+                            supportsApplication: permissionDescriptor.supportsApplication,
+                            isLeastPrivilege: permissionDescriptor.isLeastPrivilege
+                        }
+                    );
                 });
             });
         }
@@ -1152,7 +1228,9 @@ function generatePermissionDocsFromGraphDocs(outputDir, options = {}) {
     const resolvedOutputDir = path.resolve(outputDir);
     const configuredRepoDir = options.repoDir || process.env.GRAPH_DOCS_CACHE_DIR || null;
     const tempRoot = configuredRepoDir ? null : createShortTempRoot();
-    const repoDir = configuredRepoDir ? path.resolve(configuredRepoDir) : path.join(tempRoot, 'repo');
+    const repoDir = configuredRepoDir
+        ? path.resolve(configuredRepoDir)
+        : path.join(tempRoot, 'repo');
 
     try {
         if (!options.repoDir) {
@@ -1165,11 +1243,21 @@ function generatePermissionDocsFromGraphDocs(outputDir, options = {}) {
         const resourceDocsResult = buildResourceDocsFromDocsTree(repoDir);
 
         writeJson(path.join(resolvedOutputDir, 'GraphPermissionMethods.json'), apiResult.data);
-        writeJson(path.join(resolvedOutputDir, 'GraphPermissionPowerShell.json'), powerShellResult.data);
-        writeJsonSharded(path.join(resolvedOutputDir, 'GraphPermissionCodeExamples.json'), codeExamplesResult.data, {
-            maxEntriesPerPart: 120
-        });
-        writeJson(path.join(resolvedOutputDir, 'GraphResourceDocumentation.json'), resourceDocsResult.data);
+        writeJson(
+            path.join(resolvedOutputDir, 'GraphPermissionPowerShell.json'),
+            powerShellResult.data
+        );
+        writeJsonSharded(
+            path.join(resolvedOutputDir, 'GraphPermissionCodeExamples.json'),
+            codeExamplesResult.data,
+            {
+                maxEntriesPerPart: 120
+            }
+        );
+        writeJson(
+            path.join(resolvedOutputDir, 'GraphResourceDocumentation.json'),
+            resourceDocsResult.data
+        );
 
         return {
             outputDir: resolvedOutputDir,

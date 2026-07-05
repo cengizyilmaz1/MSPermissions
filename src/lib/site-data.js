@@ -33,9 +33,19 @@ const RAW_FILES = {
 };
 
 const ADMIN_CONSENT_CATEGORIES = [
-    'Application', 'AuditLog', 'Directory', 'Domain', 'IdentityRisk', 'Policy',
-    'RoleManagement', 'SecurityEvents', 'ThreatIndicators', 'Organization',
-    'DeviceManagement', 'PrivilegedAccess', 'CrossTenantAccess'
+    'Application',
+    'AuditLog',
+    'Directory',
+    'Domain',
+    'IdentityRisk',
+    'Policy',
+    'RoleManagement',
+    'SecurityEvents',
+    'ThreatIndicators',
+    'Organization',
+    'DeviceManagement',
+    'PrivilegedAccess',
+    'CrossTenantAccess'
 ];
 
 const ACCESS_LEVEL_LABELS = {
@@ -142,22 +152,31 @@ function parsePermissionValue(value) {
         accessLevel = 'readwrite';
     } else if (lowerValue.includes('write') && !lowerValue.includes('read')) {
         accessLevel = 'write';
-    } else if (lowerValue.includes('manage') || lowerValue.includes('full') || lowerValue.includes('control')) {
+    } else if (
+        lowerValue.includes('manage') ||
+        lowerValue.includes('full') ||
+        lowerValue.includes('control')
+    ) {
         accessLevel = 'full';
     }
 
     let scope = 'user';
     if (lowerValue.includes('.all')) {
         scope = 'all';
-    } else if (lowerValue.includes('ownedby') || lowerValue.includes('owned') || lowerValue.includes('appowned')) {
+    } else if (
+        lowerValue.includes('ownedby') ||
+        lowerValue.includes('owned') ||
+        lowerValue.includes('appowned')
+    ) {
         scope = 'owned';
     } else if (lowerValue.includes('shared')) {
         scope = 'shared';
     }
 
-    const requiresAdmin = ADMIN_CONSENT_CATEGORIES.some((item) =>
-        resource.toLowerCase().includes(item.toLowerCase())
-    ) || scope === 'all';
+    const requiresAdmin =
+        ADMIN_CONSENT_CATEGORIES.some((item) =>
+            resource.toLowerCase().includes(item.toLowerCase())
+        ) || scope === 'all';
 
     return { resource, action, category, accessLevel, scope, requiresAdmin };
 }
@@ -200,11 +219,19 @@ function loadPermissionCsv(filePath) {
             byCategory[categoryKey] = { 'v1.0': [], beta: [] };
         }
 
-        if (!byPermission[permissionKey][apiVersion].some((item) => item.method === method && item.endpoint === endpoint)) {
+        if (
+            !byPermission[permissionKey][apiVersion].some(
+                (item) => item.method === method && item.endpoint === endpoint
+            )
+        ) {
             byPermission[permissionKey][apiVersion].push(entry);
         }
 
-        if (!byCategory[categoryKey][apiVersion].some((item) => item.method === method && item.endpoint === endpoint)) {
+        if (
+            !byCategory[categoryKey][apiVersion].some(
+                (item) => item.method === method && item.endpoint === endpoint
+            )
+        ) {
             byCategory[categoryKey][apiVersion].push(entry);
         }
     }
@@ -239,21 +266,22 @@ function getAppSourceDescription(app) {
     }
 
     switch (app.source) {
-    case 'graph':
-        return 'This app ID was collected directly from Microsoft Graph service principal data.';
-    case 'entradocs':
-        return 'This app ID was collected from the Entra documentation known GUID catalog.';
-    case 'learn':
-        return 'This app ID was collected from a Microsoft Learn article about verifying first-party applications.';
-    default:
-        return 'This app ID is published as part of the Graph Permissions Explorer reference dataset.';
+        case 'graph':
+            return 'This app ID was collected directly from Microsoft Graph service principal data.';
+        case 'entradocs':
+            return 'This app ID was collected from the Entra documentation known GUID catalog.';
+        case 'learn':
+            return 'This app ID was collected from a Microsoft Learn article about verifying first-party applications.';
+        default:
+            return 'This app ID is published as part of the Graph Permissions Explorer reference dataset.';
     }
 }
 
 function getAppSourceDoc(app) {
-    const preferredSources = Array.isArray(app.sourceProvenance) && app.sourceProvenance.length > 0
-        ? app.sourceProvenance
-        : [app.source];
+    const preferredSources =
+        Array.isArray(app.sourceProvenance) && app.sourceProvenance.length > 0
+            ? app.sourceProvenance
+            : [app.source];
 
     for (const source of preferredSources) {
         if (SOURCE_DOCS[source]) {
@@ -269,20 +297,34 @@ function normalizeApps(apps, sourceUpdatedAt) {
         .map((item) => {
             const rawSource = String(item.Source || 'Unknown').trim();
             const source = rawSource.toLowerCase();
-            const rawSources = Array.isArray(item.Sources) && item.Sources.length > 0 ? item.Sources : [rawSource];
-            const sourceProvenance = Array.from(new Set(rawSources
-                .map((entry) => String(entry || '').trim().toLowerCase())
-                .filter(Boolean)));
+            const rawSources =
+                Array.isArray(item.Sources) && item.Sources.length > 0 ? item.Sources : [rawSource];
+            const sourceProvenance = Array.from(
+                new Set(
+                    rawSources
+                        .map((entry) =>
+                            String(entry || '')
+                                .trim()
+                                .toLowerCase()
+                        )
+                        .filter(Boolean)
+                )
+            );
             const hasOfficialSource = sourceProvenance.some((entry) => entry !== 'custom');
             const hasCommunitySource = sourceProvenance.includes('custom');
             const isCommunity = !hasOfficialSource && hasCommunitySource;
             const sourceLabel = SOURCE_LABELS[source] || rawSource;
-            const sourceProvenanceLabels = sourceProvenance.map((entry) => SOURCE_LABELS[entry] || entry);
+            const sourceProvenanceLabels = sourceProvenance.map(
+                (entry) => SOURCE_LABELS[entry] || entry
+            );
             const sourceDisplayLabel = sourceProvenanceLabels.join(' + ') || sourceLabel;
             const rawTitle = String(item.AppDisplayName || 'Unknown Microsoft App').trim();
-            const title = rawTitle.replace(/\s*\[Community Contributed\]\s*$/i, '').trim() || rawTitle;
+            const title =
+                rawTitle.replace(/\s*\[Community Contributed\]\s*$/i, '').trim() || rawTitle;
             const appId = String(item.AppId || '').toLowerCase();
-            const filterGroups = Array.from(new Set(sourceProvenance.map((entry) => entry === 'custom' ? 'community' : entry)));
+            const filterGroups = Array.from(
+                new Set(sourceProvenance.map((entry) => (entry === 'custom' ? 'community' : entry)))
+            );
 
             return {
                 appId,
@@ -361,14 +403,22 @@ function normalizePermissions(appRoles, delegateRoles) {
             isEnabled: item.IsEnabled !== false
         };
 
-        existing.description = existing.description || item.AdminConsentDescription || item.UserConsentDescription || '';
+        existing.description =
+            existing.description ||
+            item.AdminConsentDescription ||
+            item.UserConsentDescription ||
+            '';
         permissionsMap.set(value, existing);
     }
 
     return Array.from(permissionsMap.values())
         .map((item) => ({
             ...item,
-            description: item.description || item.application?.description || item.delegated?.description || ''
+            description:
+                item.description ||
+                item.application?.description ||
+                item.delegated?.description ||
+                ''
         }))
         .sort((left, right) => left.value.localeCompare(right.value));
 }
@@ -379,10 +429,12 @@ function buildSourceFreshness(rawDir) {
     return {
         graphPermissions: {
             source: 'Microsoft Graph service principal',
-            updatedAt: new Date(Math.max(
-                fs.statSync(rawPath(RAW_FILES.appRoles)).mtimeMs,
-                fs.statSync(rawPath(RAW_FILES.delegateRoles)).mtimeMs
-            )).toISOString()
+            updatedAt: new Date(
+                Math.max(
+                    fs.statSync(rawPath(RAW_FILES.appRoles)).mtimeMs,
+                    fs.statSync(rawPath(RAW_FILES.delegateRoles)).mtimeMs
+                )
+            ).toISOString()
         },
         microsoftApps: {
             source: 'Microsoft Graph + Entra Docs + Microsoft Learn + Community',
@@ -398,7 +450,9 @@ function buildSourceFreshness(rawDir) {
         },
         learnCodeExamples: {
             source: 'Microsoft Learn SDK code snippets',
-            updatedAt: latestJsonDate(rawPath(RAW_FILES.permissionCodeExamples)) || fileDate(rawPath(RAW_FILES.permissionCodeExamples))
+            updatedAt:
+                latestJsonDate(rawPath(RAW_FILES.permissionCodeExamples)) ||
+                fileDate(rawPath(RAW_FILES.permissionCodeExamples))
         },
         learnResourceDocs: {
             source: 'Microsoft Learn resource type documentation',
@@ -604,11 +658,6 @@ function toPascalCaseToken(value) {
         .join('');
 }
 
-function toCamelCaseToken(value) {
-    const pascal = toPascalCaseToken(value);
-    return pascal ? `${pascal.charAt(0).toLowerCase()}${pascal.slice(1)}` : '';
-}
-
 function getEndpointResourceCandidates(methodContext) {
     const candidates = [];
     const seen = new Set();
@@ -639,14 +688,22 @@ function getEndpointResourceCandidates(methodContext) {
         const segments = cleanPath
             .split('/')
             .map((segment) => segment.replace(/\(.*?\)/g, '').trim())
-            .filter((segment) => segment && !segment.startsWith('{') && !segment.startsWith('$') && segment.toLowerCase() !== 'me');
+            .filter(
+                (segment) =>
+                    segment &&
+                    !segment.startsWith('{') &&
+                    !segment.startsWith('$') &&
+                    segment.toLowerCase() !== 'me'
+            );
 
         const singularSegments = segments.map((segment) => singularizeResourceSegment(segment));
 
         singularSegments.forEach(addCandidate);
 
         for (let index = 1; index < singularSegments.length; index += 1) {
-            addCandidate(`${singularSegments[index - 1]}${toPascalCaseToken(singularSegments[index])}`);
+            addCandidate(
+                `${singularSegments[index - 1]}${toPascalCaseToken(singularSegments[index])}`
+            );
         }
 
         const lastSegment = singularSegments[singularSegments.length - 1];
@@ -700,9 +757,11 @@ function selectResourceMetadata(permission, resourceSchemas, resourceDocs, metho
             resourceName: selected.key,
             schema: categorySchemaMatch?.value || null,
             docs: categoryDocMatch?.value || null,
-            confidence: normalizeSchemaLookupKey(permission.category) === normalizeSchemaLookupKey(selected.key)
-                ? 'exact-category'
-                : 'mapped'
+            confidence:
+                normalizeSchemaLookupKey(permission.category) ===
+                normalizeSchemaLookupKey(selected.key)
+                    ? 'exact-category'
+                    : 'mapped'
         };
     }
 
@@ -820,19 +879,21 @@ function getDocsVersionBundle(resourceSelection) {
         return { version: null, bundle: null };
     }
 
-    if (resourceSelection.docs.v1 && (
-        resourceSelection.docs.v1.properties?.length
-        || resourceSelection.docs.v1.relationships?.length
-        || resourceSelection.docs.v1.jsonRepresentation
-    )) {
+    if (
+        resourceSelection.docs.v1 &&
+        (resourceSelection.docs.v1.properties?.length ||
+            resourceSelection.docs.v1.relationships?.length ||
+            resourceSelection.docs.v1.jsonRepresentation)
+    ) {
         return { version: 'v1', bundle: resourceSelection.docs.v1 };
     }
 
-    if (resourceSelection.docs.beta && (
-        resourceSelection.docs.beta.properties?.length
-        || resourceSelection.docs.beta.relationships?.length
-        || resourceSelection.docs.beta.jsonRepresentation
-    )) {
+    if (
+        resourceSelection.docs.beta &&
+        (resourceSelection.docs.beta.properties?.length ||
+            resourceSelection.docs.beta.relationships?.length ||
+            resourceSelection.docs.beta.jsonRepresentation)
+    ) {
         return { version: 'beta', bundle: resourceSelection.docs.beta };
     }
 
@@ -857,18 +918,23 @@ function buildPropertiesData(resourceSelection) {
 
     const v1Items = cleanProperties(schema?.properties?.['v1.0']);
     const betaItems = cleanProperties(schema?.properties?.beta);
-    const schemaVersion = v1Items.length > 0 ? 'v1' : (betaItems.length > 0 ? 'beta' : null);
+    const schemaVersion = v1Items.length > 0 ? 'v1' : betaItems.length > 0 ? 'beta' : null;
     const schemaItems = schemaVersion === 'v1' ? v1Items : betaItems;
     const version = docsVersion.version || schemaVersion;
-    const items = version === docsVersion.version
-        ? mergeNamedItems(docsItems, schemaItems)
-        : schemaItems;
+    const items =
+        version === docsVersion.version ? mergeNamedItems(docsItems, schemaItems) : schemaItems;
 
     return {
         resourceName: resourceSelection.resourceName,
-        confidence: docsVersion.version ? `${resourceSelection.confidence}-docs` : resourceSelection.confidence,
+        confidence: docsVersion.version
+            ? `${resourceSelection.confidence}-docs`
+            : resourceSelection.confidence,
         version,
-        source: docsVersion.version ? (schemaItems.length > 0 ? 'learn+openapi' : 'learn') : 'openapi',
+        source: docsVersion.version
+            ? schemaItems.length > 0
+                ? 'learn+openapi'
+                : 'learn'
+            : 'openapi',
         docLink: docsVersion.bundle?.docLink || '',
         items
     };
@@ -932,7 +998,9 @@ function buildJsonRepresentation(propertiesData, resourceSelection) {
 }
 
 function buildJsonSampleValue(typeName) {
-    const type = String(typeName || 'string').replace(/microsoft\.graph\./gi, '').trim();
+    const type = String(typeName || 'string')
+        .replace(/microsoft\.graph\./gi, '')
+        .trim();
     const lowerType = type.toLowerCase();
 
     if (lowerType.includes('collection')) {
@@ -948,7 +1016,11 @@ function buildJsonSampleValue(typeName) {
             return true;
         }
 
-        if (['int16', 'int32', 'int64', 'integer', 'double', 'single', 'float', 'decimal'].includes(lowerType)) {
+        if (
+            ['int16', 'int32', 'int64', 'integer', 'double', 'single', 'float', 'decimal'].includes(
+                lowerType
+            )
+        ) {
             return 0;
         }
 
@@ -1040,7 +1112,12 @@ function deriveRelationshipsFromSchema(schemaSelection) {
         const lowerType = type.toLowerCase();
         const isCollection = lowerType.includes('collection');
         const isComplex = !primitivePropertyTypes.has(lowerType) && lowerType !== 'object';
-        const looksRelational = isCollection || isComplex || /(^|[^a-z])(members?|owners?|children|messages|events|drives|lists|tabs|channels|appointments|instances|decisions|users|groups|permissions|assignments|photos?)$/i.test(property.name);
+        const looksRelational =
+            isCollection ||
+            isComplex ||
+            /(^|[^a-z])(members?|owners?|children|messages|events|drives|lists|tabs|channels|appointments|instances|decisions|users|groups|permissions|assignments|photos?)$/i.test(
+                property.name
+            );
 
         if (!looksRelational || seen.has(property.name)) {
             return;
@@ -1050,7 +1127,8 @@ function deriveRelationshipsFromSchema(schemaSelection) {
         items.push({
             name: property.name,
             type,
-            description: property.description || `Related ${property.name} data exposed by this resource.`
+            description:
+                property.description || `Related ${property.name} data exposed by this resource.`
         });
     });
 
@@ -1076,14 +1154,22 @@ function buildRelationshipsData(permission, resourceSelection) {
 
     return {
         resourceName: resourceSelection.resourceName,
-        confidence: merged.length > 0
-            ? (docsItems.length > 0
-                ? `${resourceSelection.confidence}-docs`
-                : (configuredItems.length > 0 ? resourceSelection.confidence : 'schema-derived'))
-            : 'unavailable',
-        source: docsItems.length > 0
-            ? (configuredItems.length > 0 || derivedItems.length > 0 ? 'learn+openapi' : 'learn')
-            : (configuredItems.length > 0 || derivedItems.length > 0 ? 'openapi' : 'unavailable'),
+        confidence:
+            merged.length > 0
+                ? docsItems.length > 0
+                    ? `${resourceSelection.confidence}-docs`
+                    : configuredItems.length > 0
+                      ? resourceSelection.confidence
+                      : 'schema-derived'
+                : 'unavailable',
+        source:
+            docsItems.length > 0
+                ? configuredItems.length > 0 || derivedItems.length > 0
+                    ? 'learn+openapi'
+                    : 'learn'
+                : configuredItems.length > 0 || derivedItems.length > 0
+                  ? 'openapi'
+                  : 'unavailable',
         docLink: docsVersion.bundle?.docLink || '',
         items: merged
     };
@@ -1108,7 +1194,8 @@ function dedupeMethods(methods) {
         }
 
         existing.supportsDelegated = existing.supportsDelegated || Boolean(item.supportsDelegated);
-        existing.supportsApplication = existing.supportsApplication || Boolean(item.supportsApplication);
+        existing.supportsApplication =
+            existing.supportsApplication || Boolean(item.supportsApplication);
         existing.isLeastPrivilege = existing.isLeastPrivilege || Boolean(item.isLeastPrivilege);
         if (!existing.docLink && item.docLink) {
             existing.docLink = item.docLink;
@@ -1139,7 +1226,8 @@ function dedupePowerShellCommands(commands) {
         }
 
         existing.supportsDelegated = existing.supportsDelegated || Boolean(item.supportsDelegated);
-        existing.supportsApplication = existing.supportsApplication || Boolean(item.supportsApplication);
+        existing.supportsApplication =
+            existing.supportsApplication || Boolean(item.supportsApplication);
         existing.isLeastPrivilege = existing.isLeastPrivilege || Boolean(item.isLeastPrivilege);
         if (!existing.title && item.title) {
             existing.title = item.title;
@@ -1214,9 +1302,17 @@ function buildSchemaSourceMetadata(resourceSelection, sourceFreshness) {
     const docsSource = sourceFreshness.learnResourceDocs;
     return {
         source: resourceSelection.docs ? docsSource.source : sourceFreshness.openApiSchemas.source,
-        sourceUpdatedAt: resourceSelection.docs ? docsSource.updatedAt : sourceFreshness.openApiSchemas.updatedAt,
-        secondarySource: resourceSelection.docs && resourceSelection.schema ? sourceFreshness.openApiSchemas.source : null,
-        secondarySourceUpdatedAt: resourceSelection.docs && resourceSelection.schema ? sourceFreshness.openApiSchemas.updatedAt : null,
+        sourceUpdatedAt: resourceSelection.docs
+            ? docsSource.updatedAt
+            : sourceFreshness.openApiSchemas.updatedAt,
+        secondarySource:
+            resourceSelection.docs && resourceSelection.schema
+                ? sourceFreshness.openApiSchemas.source
+                : null,
+        secondarySourceUpdatedAt:
+            resourceSelection.docs && resourceSelection.schema
+                ? sourceFreshness.openApiSchemas.updatedAt
+                : null,
         confidence: resourceSelection.confidence,
         resourceName: resourceSelection.resourceName,
         hasLearnDocs: Boolean(resourceSelection.docs),
@@ -1258,9 +1354,13 @@ function buildCodeExamples(permission, sampleEndpoint, powerShellContext, codeEx
     const csharpExample = pickOfficialCodeExample(codeExampleContext, 'csharp');
     const javascriptExample = pickOfficialCodeExample(codeExampleContext, 'javascript');
     const pythonExample = pickOfficialCodeExample(codeExampleContext, 'python');
-    const powershellExample = pickOfficialCodeExample(codeExampleContext, 'powershell')
-        || [...(powerShellContext.versionedCommands.v1 || []), ...(powerShellContext.versionedCommands.beta || [])]
-            .find((item) => item.code) || null;
+    const powershellExample =
+        pickOfficialCodeExample(codeExampleContext, 'powershell') ||
+        [
+            ...(powerShellContext.versionedCommands.v1 || []),
+            ...(powerShellContext.versionedCommands.beta || [])
+        ].find((item) => item.code) ||
+        null;
 
     return {
         csharp: csharpExample
@@ -1346,12 +1446,21 @@ print(response.json())</code></pre>
     };
 }
 
-function buildPermissionSourceMetadata(permission, sourceFreshness, methodContext, powerShellContext, codeExampleContext, resourceSelection) {
-    const ingestedFrom = new Set([
-        sourceFreshness.graphPermissions.source
-    ]);
+function buildPermissionSourceMetadata(
+    permission,
+    sourceFreshness,
+    methodContext,
+    powerShellContext,
+    codeExampleContext,
+    resourceSelection
+) {
+    const ingestedFrom = new Set([sourceFreshness.graphPermissions.source]);
 
-    [...methodContext.sourceKeys, ...powerShellContext.sourceKeys, ...codeExampleContext.sourceKeys].forEach((key) => {
+    [
+        ...methodContext.sourceKeys,
+        ...powerShellContext.sourceKeys,
+        ...codeExampleContext.sourceKeys
+    ].forEach((key) => {
         if (sourceFreshness[key]?.source) {
             ingestedFrom.add(sourceFreshness[key].source);
         }
@@ -1382,16 +1491,37 @@ function buildPermissionSourceMetadata(permission, sourceFreshness, methodContex
     };
 }
 
-function buildPermissionDetail(permission, sourceFreshness, permissionMethods, permissionPowerShell, permissionCodeExamples, permissionCsv, resourceSchemas, resourceDocs) {
+function buildPermissionDetail(
+    permission,
+    sourceFreshness,
+    permissionMethods,
+    permissionPowerShell,
+    permissionCodeExamples,
+    permissionCsv,
+    resourceSchemas,
+    resourceDocs
+) {
     const methodContext = getMethodContext(permission, permissionMethods, permissionCsv);
     const powerShellContext = getPowerShellContext(permission, permissionPowerShell);
     const codeExampleContext = getCodeExampleContext(permission, permissionCodeExamples);
-    const resourceSelection = selectResourceMetadata(permission, resourceSchemas, resourceDocs, methodContext);
+    const resourceSelection = selectResourceMetadata(
+        permission,
+        resourceSchemas,
+        resourceDocs,
+        methodContext
+    );
     const properties = buildPropertiesData(resourceSelection);
     const jsonRepresentation = buildJsonRepresentation(properties, resourceSelection);
     const relationships = buildRelationshipsData(permission, resourceSelection);
     const sampleEndpoint = buildSampleEndpoint(permission, methodContext);
-    const sources = buildPermissionSourceMetadata(permission, sourceFreshness, methodContext, powerShellContext, codeExampleContext, resourceSelection);
+    const sources = buildPermissionSourceMetadata(
+        permission,
+        sourceFreshness,
+        methodContext,
+        powerShellContext,
+        codeExampleContext,
+        resourceSelection
+    );
 
     return {
         ...permission,
@@ -1422,7 +1552,12 @@ function buildPermissionDetail(permission, sourceFreshness, permissionMethods, p
             docLink: properties.docLink || relationships.docLink || ''
         },
         sampleEndpoint,
-        codeExamples: buildCodeExamples(permission, sampleEndpoint, powerShellContext, codeExampleContext),
+        codeExamples: buildCodeExamples(
+            permission,
+            sampleEndpoint,
+            powerShellContext,
+            codeExampleContext
+        ),
         sources
     };
 }
@@ -1441,7 +1576,9 @@ function groupPermissionsByCategory(permissions) {
     return Object.keys(grouped)
         .sort((left, right) => left.localeCompare(right))
         .reduce((accumulator, key) => {
-            accumulator[key] = grouped[key].sort((left, right) => left.value.localeCompare(right.value));
+            accumulator[key] = grouped[key].sort((left, right) =>
+                left.value.localeCompare(right.value)
+            );
             return accumulator;
         }, {});
 }
@@ -1457,9 +1594,10 @@ function getAppSourceCounts(apps) {
     };
 
     for (const app of apps) {
-        const sources = Array.isArray(app.sourceProvenance) && app.sourceProvenance.length > 0
-            ? app.sourceProvenance
-            : [app.source];
+        const sources =
+            Array.isArray(app.sourceProvenance) && app.sourceProvenance.length > 0
+                ? app.sourceProvenance
+                : [app.source];
         sources.forEach((source) => {
             if (source === 'custom') {
                 counts.custom += 1;
@@ -1501,24 +1639,51 @@ function getStats(permissions, apps, sourceFreshness) {
 function loadRawInputs(rawDir) {
     ensureRequiredRawFiles(rawDir);
 
-    const appRoles = normalizeArray(loadJson(path.join(rawDir, RAW_FILES.appRoles), null), RAW_FILES.appRoles);
-    const delegateRoles = normalizeArray(loadJson(path.join(rawDir, RAW_FILES.delegateRoles), null), RAW_FILES.delegateRoles);
-    const microsoftApps = normalizeArray(loadJson(path.join(rawDir, RAW_FILES.microsoftApps), null), RAW_FILES.microsoftApps);
+    const appRoles = normalizeArray(
+        loadJson(path.join(rawDir, RAW_FILES.appRoles), null),
+        RAW_FILES.appRoles
+    );
+    const delegateRoles = normalizeArray(
+        loadJson(path.join(rawDir, RAW_FILES.delegateRoles), null),
+        RAW_FILES.delegateRoles
+    );
+    const microsoftApps = normalizeArray(
+        loadJson(path.join(rawDir, RAW_FILES.microsoftApps), null),
+        RAW_FILES.microsoftApps
+    );
     const permissionMethodsRaw = loadJson(path.join(rawDir, RAW_FILES.permissionMethods), null);
-    const permissionPowerShellRaw = loadJson(path.join(rawDir, RAW_FILES.permissionPowerShell), null);
-    const permissionCodeExamplesRaw = loadJsonWithShards(path.join(rawDir, RAW_FILES.permissionCodeExamples), null);
+    const permissionPowerShellRaw = loadJson(
+        path.join(rawDir, RAW_FILES.permissionPowerShell),
+        null
+    );
+    const permissionCodeExamplesRaw = loadJsonWithShards(
+        path.join(rawDir, RAW_FILES.permissionCodeExamples),
+        null
+    );
     const resourceSchemas = loadJson(path.join(rawDir, RAW_FILES.resourceSchemas), null);
     const resourceDocs = loadJson(path.join(rawDir, RAW_FILES.resourceDocs), null);
 
-    if (!permissionMethodsRaw || typeof permissionMethodsRaw !== 'object' || Array.isArray(permissionMethodsRaw)) {
+    if (
+        !permissionMethodsRaw ||
+        typeof permissionMethodsRaw !== 'object' ||
+        Array.isArray(permissionMethodsRaw)
+    ) {
         throw new Error(`${RAW_FILES.permissionMethods} must be a JSON object.`);
     }
 
-    if (!permissionPowerShellRaw || typeof permissionPowerShellRaw !== 'object' || Array.isArray(permissionPowerShellRaw)) {
+    if (
+        !permissionPowerShellRaw ||
+        typeof permissionPowerShellRaw !== 'object' ||
+        Array.isArray(permissionPowerShellRaw)
+    ) {
         throw new Error(`${RAW_FILES.permissionPowerShell} must be a JSON object.`);
     }
 
-    if (!permissionCodeExamplesRaw || typeof permissionCodeExamplesRaw !== 'object' || Array.isArray(permissionCodeExamplesRaw)) {
+    if (
+        !permissionCodeExamplesRaw ||
+        typeof permissionCodeExamplesRaw !== 'object' ||
+        Array.isArray(permissionCodeExamplesRaw)
+    ) {
         throw new Error(`${RAW_FILES.permissionCodeExamples} must be a JSON object.`);
     }
 
@@ -1531,22 +1696,31 @@ function loadRawInputs(rawDir) {
     }
 
     const permissionMethods = {
-        byPermission: Object.entries(permissionMethodsRaw).reduce((accumulator, [permission, versions]) => {
-            accumulator[permission.toLowerCase()] = versions;
-            return accumulator;
-        }, {})
+        byPermission: Object.entries(permissionMethodsRaw).reduce(
+            (accumulator, [permission, versions]) => {
+                accumulator[permission.toLowerCase()] = versions;
+                return accumulator;
+            },
+            {}
+        )
     };
     const permissionPowerShell = {
-        byPermission: Object.entries(permissionPowerShellRaw).reduce((accumulator, [permission, versions]) => {
-            accumulator[permission.toLowerCase()] = versions;
-            return accumulator;
-        }, {})
+        byPermission: Object.entries(permissionPowerShellRaw).reduce(
+            (accumulator, [permission, versions]) => {
+                accumulator[permission.toLowerCase()] = versions;
+                return accumulator;
+            },
+            {}
+        )
     };
     const permissionCodeExamples = {
-        byPermission: Object.entries(permissionCodeExamplesRaw).reduce((accumulator, [permission, versions]) => {
-            accumulator[permission.toLowerCase()] = versions;
-            return accumulator;
-        }, {})
+        byPermission: Object.entries(permissionCodeExamplesRaw).reduce(
+            (accumulator, [permission, versions]) => {
+                accumulator[permission.toLowerCase()] = versions;
+                return accumulator;
+            },
+            {}
+        )
     };
     const permissionCsv = loadPermissionCsv(path.join(rawDir, RAW_FILES.permissionCsv));
     const sourceFreshness = buildSourceFreshness(rawDir);
@@ -1568,9 +1742,23 @@ function loadRawInputs(rawDir) {
 function normalizeRawData(rawDir, options = {}) {
     const loaded = loadRawInputs(rawDir);
     const ingestedAt = options.ingestedAt || new Date().toISOString();
-    const normalizedPermissions = normalizePermissions(loaded.appRoles, loaded.delegateRoles)
-        .map((permission) => buildPermissionDetail(permission, loaded.sourceFreshness, loaded.permissionMethods, loaded.permissionPowerShell, loaded.permissionCodeExamples, loaded.permissionCsv, loaded.resourceSchemas, loaded.resourceDocs));
-    const normalizedApps = normalizeApps(loaded.microsoftApps, loaded.sourceFreshness.microsoftApps.updatedAt);
+    const normalizedPermissions = normalizePermissions(loaded.appRoles, loaded.delegateRoles).map(
+        (permission) =>
+            buildPermissionDetail(
+                permission,
+                loaded.sourceFreshness,
+                loaded.permissionMethods,
+                loaded.permissionPowerShell,
+                loaded.permissionCodeExamples,
+                loaded.permissionCsv,
+                loaded.resourceSchemas,
+                loaded.resourceDocs
+            )
+    );
+    const normalizedApps = normalizeApps(
+        loaded.microsoftApps,
+        loaded.sourceFreshness.microsoftApps.updatedAt
+    );
     const stats = getStats(normalizedPermissions, normalizedApps, loaded.sourceFreshness);
 
     const normalized = {
@@ -1579,19 +1767,23 @@ function normalizeRawData(rawDir, options = {}) {
         snapshotId: '',
         sourceFreshness: loaded.sourceFreshness,
         stats,
-        categories: Object.entries(groupPermissionsByCategory(normalizedPermissions)).map(([name, items]) => ({
-            name,
-            count: items.length
-        })),
+        categories: Object.entries(groupPermissionsByCategory(normalizedPermissions)).map(
+            ([name, items]) => ({
+                name,
+                count: items.length
+            })
+        ),
         permissions: normalizedPermissions,
         apps: normalizedApps
     };
 
-    normalized.snapshotId = hashContent(JSON.stringify({
-        ingestedAt: normalized.ingestedAt,
-        sourceFreshness: normalized.sourceFreshness,
-        stats: normalized.stats
-    })).slice(0, 16);
+    normalized.snapshotId = hashContent(
+        JSON.stringify({
+            ingestedAt: normalized.ingestedAt,
+            sourceFreshness: normalized.sourceFreshness,
+            stats: normalized.stats
+        })
+    ).slice(0, 16);
 
     return normalized;
 }
@@ -1607,7 +1799,14 @@ function buildPermissionCatalog(normalized) {
         ingestedAt: normalized.ingestedAt,
         totalPermissions: normalized.stats.permissions,
         categories: normalized.categories,
-        items: normalized.permissions.map((item) => [item.value, item.slug, item.category])
+        items: normalized.permissions.map((item) => [
+            item.value,
+            item.slug,
+            item.category,
+            item.application ? item.application.id : '',
+            item.delegated ? item.delegated.id : '',
+            item.requiresAdmin ? 1 : 0
+        ])
     };
 }
 
@@ -1631,10 +1830,26 @@ function buildAppsManifest(normalized, chunkSize = DEFAULT_APP_CHUNK_SIZE) {
         totalApps: normalized.stats.apps,
         counts: normalized.stats.sourceCounts,
         sources: [
-            { key: 'graph', label: SOURCE_LABELS.graph, count: normalized.stats.sourceCounts.graph || 0 },
-            { key: 'entradocs', label: SOURCE_LABELS.entradocs, count: normalized.stats.sourceCounts.entradocs || 0 },
-            { key: 'learn', label: SOURCE_LABELS.learn, count: normalized.stats.sourceCounts.learn || 0 },
-            { key: 'community', label: SOURCE_LABELS.custom, count: normalized.stats.sourceCounts.community || 0 }
+            {
+                key: 'graph',
+                label: SOURCE_LABELS.graph,
+                count: normalized.stats.sourceCounts.graph || 0
+            },
+            {
+                key: 'entradocs',
+                label: SOURCE_LABELS.entradocs,
+                count: normalized.stats.sourceCounts.entradocs || 0
+            },
+            {
+                key: 'learn',
+                label: SOURCE_LABELS.learn,
+                count: normalized.stats.sourceCounts.learn || 0
+            },
+            {
+                key: 'community',
+                label: SOURCE_LABELS.custom,
+                count: normalized.stats.sourceCounts.community || 0
+            }
         ],
         detailBasePath: 'apps/',
         searchIndex: normalized.apps.map((app) => [app.title, app.appId, app.anchor]),
@@ -1708,15 +1923,21 @@ function validateNormalizedData(normalized, thresholds, options = {}) {
     const minCategories = fixtureMode ? 1 : Number(thresholds.minCategories || 1);
 
     if (normalized.permissions.length < minPermissions) {
-        errors.push(`Expected at least ${minPermissions} permissions but found ${normalized.permissions.length}.`);
+        errors.push(
+            `Expected at least ${minPermissions} permissions but found ${normalized.permissions.length}.`
+        );
     }
 
     if (normalized.stats.officialApps < minOfficialApps) {
-        errors.push(`Expected at least ${minOfficialApps} official apps but found ${normalized.stats.officialApps}.`);
+        errors.push(
+            `Expected at least ${minOfficialApps} official apps but found ${normalized.stats.officialApps}.`
+        );
     }
 
     if (normalized.categories.length < minCategories) {
-        errors.push(`Expected at least ${minCategories} categories but found ${normalized.categories.length}.`);
+        errors.push(
+            `Expected at least ${minCategories} categories but found ${normalized.categories.length}.`
+        );
     }
 
     for (const sourceKey of thresholds.requiredSources || []) {
@@ -1742,7 +1963,9 @@ function validateNormalizedData(normalized, thresholds, options = {}) {
     });
 
     if (duplicateApps.size > 0) {
-        errors.push(`Duplicate App IDs detected: ${Array.from(duplicateApps).slice(0, 10).join(', ')}.`);
+        errors.push(
+            `Duplicate App IDs detected: ${Array.from(duplicateApps).slice(0, 10).join(', ')}.`
+        );
     }
 
     const slugs = new Set();
@@ -1755,32 +1978,50 @@ function validateNormalizedData(normalized, thresholds, options = {}) {
     });
 
     if (duplicateSlugs.size > 0) {
-        errors.push(`Duplicate permission slugs detected: ${Array.from(duplicateSlugs).slice(0, 10).join(', ')}.`);
+        errors.push(
+            `Duplicate permission slugs detected: ${Array.from(duplicateSlugs).slice(0, 10).join(', ')}.`
+        );
     }
 
-    const unavailableMethods = normalized.permissions.filter((item) => item.methods.confidence === 'unavailable').length;
-    const unavailablePowerShell = normalized.permissions.filter((item) => item.methods.powershell.confidence === 'unavailable').length;
-    const unavailableCodeExamples = normalized.permissions.filter((item) =>
-        !item.codeExamples.csharp.includes('View official example on Microsoft Learn')
-        && !item.codeExamples.javascript.includes('View official example on Microsoft Learn')
-        && !item.codeExamples.python.includes('View official example on Microsoft Learn')
-        && !item.codeExamples.powershell.includes('View official example on Microsoft Learn')).length;
-    const unavailableSchemas = normalized.permissions.filter((item) => item.properties.version === null).length;
+    const unavailableMethods = normalized.permissions.filter(
+        (item) => item.methods.confidence === 'unavailable'
+    ).length;
+    const unavailablePowerShell = normalized.permissions.filter(
+        (item) => item.methods.powershell.confidence === 'unavailable'
+    ).length;
+    const unavailableCodeExamples = normalized.permissions.filter(
+        (item) =>
+            !item.codeExamples.csharp.includes('View official example on Microsoft Learn') &&
+            !item.codeExamples.javascript.includes('View official example on Microsoft Learn') &&
+            !item.codeExamples.python.includes('View official example on Microsoft Learn') &&
+            !item.codeExamples.powershell.includes('View official example on Microsoft Learn')
+    ).length;
+    const unavailableSchemas = normalized.permissions.filter(
+        (item) => item.properties.version === null
+    ).length;
 
     if (unavailableMethods > 0) {
-        warnings.push(`${unavailableMethods} permissions do not have Microsoft Learn or OpenAPI endpoint metadata.`);
+        warnings.push(
+            `${unavailableMethods} permissions do not have Microsoft Learn or OpenAPI endpoint metadata.`
+        );
     }
 
     if (unavailablePowerShell > 0) {
-        warnings.push(`${unavailablePowerShell} permissions do not have Microsoft Learn PowerShell command metadata.`);
+        warnings.push(
+            `${unavailablePowerShell} permissions do not have Microsoft Learn PowerShell command metadata.`
+        );
     }
 
     if (unavailableCodeExamples > 0) {
-        warnings.push(`${unavailableCodeExamples} permissions do not have official Microsoft Learn code examples for the displayed languages.`);
+        warnings.push(
+            `${unavailableCodeExamples} permissions do not have official Microsoft Learn code examples for the displayed languages.`
+        );
     }
 
     if (unavailableSchemas > 0) {
-        warnings.push(`${unavailableSchemas} permissions do not have Learn or OpenAPI resource metadata.`);
+        warnings.push(
+            `${unavailableSchemas} permissions do not have Learn or OpenAPI resource metadata.`
+        );
     }
 
     return {
@@ -1802,10 +2043,14 @@ function validateNormalizedData(normalized, thresholds, options = {}) {
 }
 
 function generateSidebar(categories, currentSlug = null, basePath = '.') {
-    return Object.entries(categories).sort((left, right) => left[0].localeCompare(right[0])).map(([category, permissions]) => {
-        const expanded = currentSlug ? permissions.some((item) => item.slug === currentSlug) : false;
+    return Object.entries(categories)
+        .sort((left, right) => left[0].localeCompare(right[0]))
+        .map(([category, permissions]) => {
+            const expanded = currentSlug
+                ? permissions.some((item) => item.slug === currentSlug)
+                : false;
 
-        return `
+            return `
         <div class="nav-category ${expanded ? 'expanded' : ''}">
             <button class="nav-category-header" onclick="toggleCategory(this)">
                 <svg class="nav-icon" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
@@ -1813,13 +2058,18 @@ function generateSidebar(categories, currentSlug = null, basePath = '.') {
                 <span class="nav-count">${permissions.length}</span>
             </button>
             <ul class="nav-items">
-                ${permissions.map((permission) => `
+                ${permissions
+                    .map(
+                        (permission) => `
                     <li><a href="${basePath}/permissions/${permission.slug}.html"
                            class="nav-item ${permission.slug === currentSlug ? 'active' : ''}"
-                           data-permission="${permission.value.toLowerCase()}">${escapeHtml(permission.value)}</a></li>`).join('')}
+                           data-permission="${permission.value.toLowerCase()}">${escapeHtml(permission.value)}</a></li>`
+                    )
+                    .join('')}
             </ul>
         </div>`;
-    }).join('');
+        })
+        .join('');
 }
 
 function generateAppsSidebar(basePath = '.') {
@@ -1858,18 +2108,22 @@ function generateAppDetailSidebar(app, basePath = '..') {
 }
 
 function generateAppsTableRows(apps, basePath = '.') {
-    return apps.map((app) => {
-        const portalUrl = getAppPortalUrl(app);
-        const sourceClass = app.source === 'custom' ? 'custom' : app.source;
-        const detailPath = `${basePath}/${getAppDetailPath(app)}`;
-        const searchableSource = [
-            app.source,
-            app.sourceLabel,
-            app.sourceDisplayLabel,
-            ...(app.sourceProvenance || []),
-            ...(app.sourceProvenanceLabels || [])
-        ].filter(Boolean).join(' ').toLowerCase();
-        return `
+    return apps
+        .map((app) => {
+            const portalUrl = getAppPortalUrl(app);
+            const sourceClass = app.source === 'custom' ? 'custom' : app.source;
+            const detailPath = `${basePath}/${getAppDetailPath(app)}`;
+            const searchableSource = [
+                app.source,
+                app.sourceLabel,
+                app.sourceDisplayLabel,
+                ...(app.sourceProvenance || []),
+                ...(app.sourceProvenanceLabels || [])
+            ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+            return `
             <tr id="${app.anchor}" data-appid="${app.appId}" data-name="${escapeHtml(app.title.toLowerCase())}" data-source="${escapeHtml(searchableSource)}" data-filter-groups="${escapeHtml((app.filterGroups || [app.filterGroup]).join('|'))}">
                 <td class="app-name">
                     <a href="${detailPath}" class="app-name-link">
@@ -1894,16 +2148,19 @@ function generateAppsTableRows(apps, basePath = '.') {
                 </td>
             </tr>
         `;
-    }).join('');
+        })
+        .join('');
 }
 
 function buildTypeBadges(permission) {
     let badges = '';
     if (permission.hasApplication) {
-        badges += '<span class="badge badge-app"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Application</span>';
+        badges +=
+            '<span class="badge badge-app"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Application</span>';
     }
     if (permission.hasDelegated) {
-        badges += '<span class="badge badge-delegated"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Delegated</span>';
+        badges +=
+            '<span class="badge badge-delegated"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Delegated</span>';
     }
     return badges;
 }
@@ -1933,7 +2190,10 @@ function generatePermissionCards(permission) {
     }
 
     if (permission.delegated) {
-        const consentType = permission.delegated.type === 'User' ? 'User consent allowed' : 'Admin consent required';
+        const consentType =
+            permission.delegated.type === 'User'
+                ? 'User consent allowed'
+                : 'Admin consent required';
         cards += `
         <div class="detail-card detail-card-delegated">
             <div class="card-header">
@@ -1946,10 +2206,14 @@ function generatePermissionCards(permission) {
             <div class="card-body">
                 <h4>${escapeHtml(permission.delegated.displayName)}</h4>
                 <p>${escapeHtml(permission.delegated.description)}</p>
-                ${permission.delegated.userConsentDescription ? `
+                ${
+                    permission.delegated.userConsentDescription
+                        ? `
                 <div class="user-consent-info">
                     <strong>User sees:</strong> ${escapeHtml(permission.delegated.userConsentDescription)}
-                </div>` : ''}
+                </div>`
+                        : ''
+                }
             </div>
             <div class="card-footer">
                 <span class="label">Permission ID:</span>
@@ -1982,14 +2246,17 @@ function generatePermissionIds(permission) {
     return rows.join('') || '<p class="no-data-message">No permission IDs available.</p>';
 }
 
-function buildLearnResourceLink(permission, version = 'v1.0') {
+function buildLearnResourceLink(permission, _version = 'v1.0') {
     if (permission.resource?.docLink) {
         return permission.resource.docLink;
     }
 
-    const resource = resolveResourceName(permission.category.toLowerCase());
-    const view = version === 'beta' ? 'graph-rest-beta' : 'graph-rest-1.0';
-    return `https://learn.microsoft.com/en-us/graph/api/resources/${resource}?view=${view}`;
+    // No verified resource documentation page exists for this permission mapping.
+    // Guessing a resources/{name} URL frequently 404s (beta-only resources, renamed
+    // entities, wrong api-version view), so fall back to the always-valid Microsoft
+    // Graph permissions reference anchored to this permission instead.
+    const anchor = permission.value.toLowerCase().replace(/\./g, '');
+    return `https://learn.microsoft.com/graph/permissions-reference#${anchor}`;
 }
 
 function buildMethodNoteHtml(label, description, className) {
@@ -2002,8 +2269,16 @@ function buildMethodNoteHtml(label, description, className) {
 
 function generateResourceLinksHtml(permission) {
     const permissionReferenceUrl = `https://learn.microsoft.com/graph/permissions-reference#${permission.value.toLowerCase().replace(/\./g, '')}`;
-    const resourceDocUrl = permission.resource?.docLink || buildLearnResourceLink(permission, permission.properties.version === 'beta' ? 'beta' : 'v1.0');
     const graphExplorerUrl = `https://developer.microsoft.com/graph/graph-explorer?request=${encodeURIComponent(permission.sampleEndpoint || '/me')}&method=GET&version=v1.0`;
+    const resourceDocItem = permission.resource?.docLink
+        ? `
+            <li>
+                <a href="${permission.resource.docLink}" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    Resource type docs
+                </a>
+            </li>`
+        : '';
 
     return `
         <ul class="resource-links">
@@ -2012,13 +2287,7 @@ function generateResourceLinksHtml(permission) {
                     <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                     Permission reference
                 </a>
-            </li>
-            <li>
-                <a href="${resourceDocUrl}" target="_blank" rel="noopener">
-                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                    Resource type docs
-                </a>
-            </li>
+            </li>${resourceDocItem}
             <li>
                 <a href="${graphExplorerUrl}" target="_blank" rel="noopener">
                     <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -2033,11 +2302,12 @@ function generateApiMethodsTable(permission, version) {
     const endpoints = dedupeMethods(permission.methods.api[version] || []);
     const label = version === 'v1' ? 'Microsoft Graph v1.0' : 'Microsoft Graph beta';
     const noteClass = permission.methods.confidence === 'exact' ? 'stable' : 'beta';
-    const noteDescription = permission.methods.confidence === 'exact'
-        ? `${label} endpoints are mapped directly from refreshed Microsoft Learn permissions tables.`
-        : permission.methods.confidence === 'category-derived'
-            ? `${label} endpoints are shown from Microsoft Graph OpenAPI resource-family metadata because Microsoft Learn does not publish a direct mapping for this permission.`
-            : `${label} endpoints are not available from refreshed Microsoft Learn or Microsoft Graph OpenAPI metadata for this permission.`;
+    const noteDescription =
+        permission.methods.confidence === 'exact'
+            ? `${label} endpoints are mapped directly from refreshed Microsoft Learn permissions tables.`
+            : permission.methods.confidence === 'category-derived'
+              ? `${label} endpoints are shown from Microsoft Graph OpenAPI resource-family metadata because Microsoft Learn does not publish a direct mapping for this permission.`
+              : `${label} endpoints are not available from refreshed Microsoft Learn or Microsoft Graph OpenAPI metadata for this permission.`;
     const note = buildMethodNoteHtml(permission.methods.label, noteDescription, noteClass);
 
     if (endpoints.length === 0) {
@@ -2075,7 +2345,8 @@ function generateApiMethodsTable(permission, version) {
 }
 
 function generatePowerShellMethodsHtml(permission, version) {
-    const label = version === 'v1' ? 'Microsoft Graph PowerShell v1.0' : 'Microsoft Graph PowerShell beta';
+    const label =
+        version === 'v1' ? 'Microsoft Graph PowerShell v1.0' : 'Microsoft Graph PowerShell beta';
     const powerShellData = permission.methods?.powershell || {
         confidence: 'unavailable',
         label: 'No Microsoft Learn PowerShell mapping available',
@@ -2083,13 +2354,15 @@ function generatePowerShellMethodsHtml(permission, version) {
         beta: []
     };
     const commands = dedupePowerShellCommands(powerShellData[version] || []);
-    const learnLink = version === 'v1'
-        ? 'https://learn.microsoft.com/en-us/powershell/microsoftgraph/'
-        : 'https://learn.microsoft.com/en-us/powershell/microsoftgraph/overview?view=graph-powershell-beta';
+    const learnLink =
+        version === 'v1'
+            ? 'https://learn.microsoft.com/en-us/powershell/microsoftgraph/'
+            : 'https://learn.microsoft.com/en-us/powershell/microsoftgraph/overview?view=graph-powershell-beta';
     const noteClass = powerShellData.confidence === 'exact' ? 'stable' : 'beta';
-    const noteDescription = powerShellData.confidence === 'exact'
-        ? `${label} commands are mapped directly from refreshed Microsoft Learn PowerShell snippets.`
-        : `${label} commands are not available from refreshed Microsoft Learn PowerShell snippets for this permission.`;
+    const noteDescription =
+        powerShellData.confidence === 'exact'
+            ? `${label} commands are mapped directly from refreshed Microsoft Learn PowerShell snippets.`
+            : `${label} commands are not available from refreshed Microsoft Learn PowerShell snippets for this permission.`;
     const note = buildMethodNoteHtml(powerShellData.label, noteDescription, noteClass);
 
     if (commands.length === 0) {
@@ -2104,9 +2377,10 @@ function generatePowerShellMethodsHtml(permission, version) {
         </div>`;
     }
 
-    const sorted = [...commands].sort((left, right) =>
-        left.command.localeCompare(right.command)
-        || String(left.endpoint || '').localeCompare(String(right.endpoint || ''))
+    const sorted = [...commands].sort(
+        (left, right) =>
+            left.command.localeCompare(right.command) ||
+            String(left.endpoint || '').localeCompare(String(right.endpoint || ''))
     );
 
     let html = `${note}<table class="methods-table"><thead><tr><th>Commands</th></tr></thead><tbody>`;
@@ -2188,18 +2462,30 @@ function generatePropertiesHtml(permission) {
         html += `<p class="more-props">Showing 15 of ${permission.properties.items.length} properties.</p>`;
     }
 
-    return prependDataVersionNote(html, permission.properties.version === 'v1' ? 'v1' : 'beta', permission.properties.confidence, 'Properties');
+    return prependDataVersionNote(
+        html,
+        permission.properties.version === 'v1' ? 'v1' : 'beta',
+        permission.properties.confidence,
+        'Properties'
+    );
 }
 
 function generateJsonRepresentationHtml(permission) {
-    if (!permission.jsonRepresentation.version || (!permission.jsonRepresentation.value && !permission.jsonRepresentation.raw)) {
-        return `<p class="no-data-message">JSON representation is not available for this permission mapping. <a href="${buildLearnResourceLink(permission, 'v1.0')}#json-representation" target="_blank" rel="noopener">View on Microsoft Learn</a></p>`;
+    if (
+        !permission.jsonRepresentation.version ||
+        (!permission.jsonRepresentation.value && !permission.jsonRepresentation.raw)
+    ) {
+        const learnLink = permission.resource?.docLink
+            ? `${permission.resource.docLink}#json-representation`
+            : buildLearnResourceLink(permission, 'v1.0');
+        return `<p class="no-data-message">JSON representation is not available for this permission mapping. <a href="${learnLink}" target="_blank" rel="noopener">View on Microsoft Learn</a></p>`;
     }
 
     const jsonString = permission.jsonRepresentation.value
         ? JSON.stringify(permission.jsonRepresentation.value, null, 2)
         : permission.jsonRepresentation.raw;
-    return prependDataVersionNote(`
+    return prependDataVersionNote(
+        `
         <div class="json-block">
             <div class="json-header">
                 <span class="json-title">JSON representation</span>
@@ -2207,9 +2493,10 @@ function generateJsonRepresentationHtml(permission) {
             </div>
             <pre><code class="language-json">${escapeHtml(jsonString)}</code></pre>
         </div>`,
-    permission.jsonRepresentation.version === 'v1' ? 'v1' : 'beta',
-    permission.jsonRepresentation.confidence,
-    'JSON representation');
+        permission.jsonRepresentation.version === 'v1' ? 'v1' : 'beta',
+        permission.jsonRepresentation.confidence,
+        'JSON representation'
+    );
 }
 
 function generateRelationshipsHtml(permission) {
@@ -2254,16 +2541,17 @@ function generateRelationshipsHtml(permission) {
 }
 
 function buildPermissionPageContent(permission) {
-    const permissionTypeText = permission.hasApplication && permission.hasDelegated
-        ? 'Application permissions or delegated permissions'
-        : permission.hasApplication
-            ? 'Application permissions'
-            : 'Delegated permissions';
+    const permissionTypeText =
+        permission.hasApplication && permission.hasDelegated
+            ? 'Application permissions or delegated permissions'
+            : permission.hasApplication
+              ? 'Application permissions'
+              : 'Delegated permissions';
     const consentText = permission.hasApplication
         ? 'Application permissions always require admin consent.'
         : permission.delegated?.type === 'User'
-            ? 'Users can consent to this permission during sign-in.'
-            : 'This delegated permission requires admin consent.';
+          ? 'Users can consent to this permission during sign-in.'
+          : 'This delegated permission requires admin consent.';
 
     return {
         typeBadges: buildTypeBadges(permission),

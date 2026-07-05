@@ -15,7 +15,7 @@ function cleanDir(dirPath) {
 
 function readUtf8(filePath) {
     let content = fs.readFileSync(filePath, 'utf8');
-    if (content.charCodeAt(0) === 0xFEFF) {
+    if (content.charCodeAt(0) === 0xfeff) {
         content = content.slice(1);
     }
     return content;
@@ -45,7 +45,8 @@ function getJsonShardPaths(filePath) {
 
     const shardPattern = new RegExp(`^${baseName}\\.part-\\d{3}${extension.replace('.', '\\.')}$`);
 
-    return fs.readdirSync(directory)
+    return fs
+        .readdirSync(directory)
         .filter((entry) => shardPattern.test(entry))
         .sort((left, right) => left.localeCompare(right))
         .map((entry) => path.join(directory, entry));
@@ -108,7 +109,10 @@ function writeJsonSharded(filePath, value, options = {}) {
         let partIndex = 0;
         for (let index = 0; index < value.length; index += maxEntriesPerPart) {
             partIndex += 1;
-            const shardPath = filePath.replace(/\.json$/i, `.part-${String(partIndex).padStart(3, '0')}.json`);
+            const shardPath = filePath.replace(
+                /\.json$/i,
+                `.part-${String(partIndex).padStart(3, '0')}.json`
+            );
             writeJson(shardPath, value.slice(index, index + maxEntriesPerPart));
         }
 
@@ -125,8 +129,14 @@ function writeJsonSharded(filePath, value, options = {}) {
         let partIndex = 0;
         for (let index = 0; index < entries.length; index += maxEntriesPerPart) {
             partIndex += 1;
-            const shardPath = filePath.replace(/\.json$/i, `.part-${String(partIndex).padStart(3, '0')}.json`);
-            writeJson(shardPath, Object.fromEntries(entries.slice(index, index + maxEntriesPerPart)));
+            const shardPath = filePath.replace(
+                /\.json$/i,
+                `.part-${String(partIndex).padStart(3, '0')}.json`
+            );
+            writeJson(
+                shardPath,
+                Object.fromEntries(entries.slice(index, index + maxEntriesPerPart))
+            );
         }
 
         return { mode: 'sharded', parts: partIndex };

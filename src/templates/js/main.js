@@ -7,7 +7,9 @@ let searchIndexPromise = null;
 let appsCatalogPromise = null;
 let toastContainer;
 
-const FAVORITES_KEY = 'graph_permissions_favorites';
+const BASKET_KEY = 'graph_permissions_basket';
+const GRAPH_RESOURCE_APP_ID = '00000003-0000-0000-c000-000000000000';
+let permissionsCatalogPromise = null;
 
 function getBasePath() {
     return document.body?.dataset.basePath || '.';
@@ -76,14 +78,14 @@ async function ensureSearchIndexLoaded() {
         ]).then(([permissionsCatalog, appsManifest]) => {
             const detailBasePath = appsManifest.detailBasePath || 'apps/';
             window.SEARCH_INDEX = [
-                ...((permissionsCatalog.items || []).map((item) => ({
+                ...(permissionsCatalog.items || []).map((item) => ({
                     type: 'permission',
                     title: item[0],
                     url: `permissions/${item[1]}.html`,
                     category: item[2],
                     description: item[2]
-                }))),
-                ...((appsManifest.searchIndex || []).map((item) => {
+                })),
+                ...(appsManifest.searchIndex || []).map((item) => {
                     return {
                         type: 'app',
                         title: item[0],
@@ -91,7 +93,7 @@ async function ensureSearchIndexLoaded() {
                         url: `${detailBasePath}${item[2]}.html`,
                         description: `App ID: ${item[1]}`
                     };
-                }))
+                })
             ];
             return window.SEARCH_INDEX;
         });
@@ -119,7 +121,8 @@ async function openSearch() {
         await ensureSearchIndexLoaded();
         renderSearchResults([]);
     } catch {
-        results.innerHTML = '<div class="search-empty no-results">Search is temporarily unavailable.</div>';
+        results.innerHTML =
+            '<div class="search-empty no-results">Search is temporarily unavailable.</div>';
     }
 }
 
@@ -162,7 +165,10 @@ function renderSearchResults(results) {
         return;
     }
 
-    container.innerHTML = results.slice(0, 20).map((item, index) => `
+    container.innerHTML = results
+        .slice(0, 20)
+        .map(
+            (item, index) => `
         <div class="search-result ${index === selectedIndex ? 'selected' : ''}"
              onclick="navigateTo('${item.url}')"
              data-index="${index}">
@@ -170,7 +176,9 @@ function renderSearchResults(results) {
             <span class="search-result-desc">${escapeHtml(item.description || '').substring(0, 90)}</span>
             <span class="search-result-type">${escapeHtml(item.type)}</span>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
 function performSearch(query) {
@@ -181,10 +189,15 @@ function performSearch(query) {
     }
 
     const lowered = currentSearchQuery.toLowerCase();
-    const results = window.SEARCH_INDEX
-        .map((item) => ({ item, score: scoreSearchResult(item, lowered) }))
+    const results = window.SEARCH_INDEX.map((item) => ({
+        item,
+        score: scoreSearchResult(item, lowered)
+    }))
         .filter((entry) => entry.score > 0)
-        .sort((left, right) => right.score - left.score || left.item.title.localeCompare(right.item.title))
+        .sort(
+            (left, right) =>
+                right.score - left.score || left.item.title.localeCompare(right.item.title)
+        )
         .slice(0, 20)
         .map((entry) => entry.item);
 
@@ -243,7 +256,10 @@ function filterSidebar(query) {
                 item.dataset.appid,
                 item.dataset.appname,
                 item.textContent
-            ].filter(Boolean).join(' ').toLowerCase();
+            ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
             const matches = !lowered || haystack.includes(lowered);
             item.closest('li').style.display = matches ? '' : 'none';
             if (matches) {
@@ -263,11 +279,14 @@ function toggleCategory(button) {
 }
 
 function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        showToast('Copied to clipboard!', 'success');
-    }).catch(() => {
-        showToast('Copy failed', 'error');
-    });
+    navigator.clipboard
+        .writeText(text)
+        .then(() => {
+            showToast('Copied to clipboard!', 'success');
+        })
+        .catch(() => {
+            showToast('Copy failed', 'error');
+        });
 }
 
 function copyAppIdOnClick(event, appId) {
@@ -311,6 +330,57 @@ function copyCode(button) {
     });
 }
 
+function getHashParams() {
+    const raw = window.location.hash.replace(/^#/, '');
+    const params = {};
+    if (!raw) {
+        return params;
+    }
+    raw.split('&').forEach((pair) => {
+        const index = pair.indexOf('=');
+        if (index > 0) {
+            params[pair.slice(0, index)] = decodeURIComponent(pair.slice(index + 1));
+        }
+    });
+    return params;
+}
+
+function setHashParam(key, value) {
+    const params = getHashParams();
+    params[key] = value;
+    const hash = Object.entries(params)
+        .map(([entryKey, entryValue]) => `${entryKey}=${encodeURIComponent(entryValue)}`)
+        .join('&');
+    window.history.replaceState(null, '', `#${hash}`);
+}
+
+function activateTabGroup(
+    container,
+    buttonSelector,
+    contentSelector,
+    activeButton,
+    contentSelectorId
+) {
+    container.querySelectorAll(buttonSelector).forEach((item) => item.classList.remove('active'));
+    container.querySelectorAll(contentSelector).forEach((item) => item.classList.remove('active'));
+    activeButton.classList.add('active');
+    container.querySelector(contentSelectorId)?.classList.add('active');
+}
+
+function applyTabsFromHash() {
+    const params = getHashParams();
+    if (params.code) {
+        document
+            .querySelector(`.code-tabs .tab-btn[data-tab="${params.code}"]`)
+            ?.dispatchEvent(new Event('click'));
+    }
+    if (params.method) {
+        document
+            .querySelector(`.method-tab-btn[data-method-tab="${params.method}"]`)
+            ?.dispatchEvent(new Event('click'));
+    }
+}
+
 function initTabs() {
     document.querySelectorAll('.tab-btn').forEach((button) => {
         button.addEventListener('click', () => {
@@ -319,10 +389,14 @@ function initTabs() {
                 return;
             }
 
-            container.querySelectorAll('.tab-btn').forEach((item) => item.classList.remove('active'));
-            container.querySelectorAll('.tab-content').forEach((item) => item.classList.remove('active'));
-            button.classList.add('active');
-            container.querySelector(`#tab-${button.dataset.tab}`)?.classList.add('active');
+            activateTabGroup(
+                container,
+                '.tab-btn',
+                '.tab-content',
+                button,
+                `#tab-${button.dataset.tab}`
+            );
+            setHashParam('code', button.dataset.tab);
         });
     });
 
@@ -333,12 +407,18 @@ function initTabs() {
                 return;
             }
 
-            container.querySelectorAll('.method-tab-btn').forEach((item) => item.classList.remove('active'));
-            container.querySelectorAll('.method-tab-content').forEach((item) => item.classList.remove('active'));
-            button.classList.add('active');
-            container.querySelector(`#method-tab-${button.dataset.methodTab}`)?.classList.add('active');
+            activateTabGroup(
+                container,
+                '.method-tab-btn',
+                '.method-tab-content',
+                button,
+                `#method-tab-${button.dataset.methodTab}`
+            );
+            setHashParam('method', button.dataset.methodTab);
         });
     });
+
+    applyTabsFromHash();
 }
 
 function updateAppsCount(visibleCount) {
@@ -392,24 +472,27 @@ function renderAppsRows(apps, detailBasePath = 'apps/') {
         return;
     }
 
-    tbody.innerHTML = apps.map((app) => {
-        const detailUrl = joinBasePath(`${detailBasePath}${app.anchor}.html`);
-        const portalUrl = buildAppPortalUrl(app.appId);
-        const sourceClass = app.isCommunity ? 'custom' : app.source;
-        const searchableSource = [
-            app.source || '',
-            app.sourceLabel || '',
-            app.sourceDisplayLabel || '',
-            ...((app.sourceProvenance || []).map((item) => String(item || ''))),
-            ...((app.sourceProvenanceLabels || []).map((item) => String(item || '')))
-        ].join(' ').toLowerCase();
+    tbody.innerHTML = apps
+        .map((app) => {
+            const detailUrl = joinBasePath(`${detailBasePath}${app.anchor}.html`);
+            const portalUrl = buildAppPortalUrl(app.appId);
+            const sourceClass = app.isCommunity ? 'custom' : app.source;
+            const searchableSource = [
+                app.source || '',
+                app.sourceLabel || '',
+                app.sourceDisplayLabel || '',
+                ...(app.sourceProvenance || []).map((item) => String(item || '')),
+                ...(app.sourceProvenanceLabels || []).map((item) => String(item || ''))
+            ]
+                .join(' ')
+                .toLowerCase();
 
-        return `
+            return `
             <tr id="${escapeHtml(app.anchor)}"
                 data-appid="${escapeHtml(app.appId)}"
                 data-name="${escapeHtml((app.title || '').toLowerCase())}"
                 data-source="${escapeHtml(searchableSource)}"
-                data-filter-groups="${escapeHtml(((app.filterGroups && app.filterGroups.length > 0) ? app.filterGroups : [app.filterGroup || 'all']).join('|'))}">
+                data-filter-groups="${escapeHtml((app.filterGroups && app.filterGroups.length > 0 ? app.filterGroups : [app.filterGroup || 'all']).join('|'))}">
                 <td class="app-name">
                     <a href="${detailUrl}" class="app-name-link">
                         <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
@@ -433,7 +516,8 @@ function renderAppsRows(apps, detailBasePath = 'apps/') {
                 </td>
             </tr>
         `;
-    }).join('');
+        })
+        .join('');
 }
 
 function applyAppsSourceVisibility(manifest) {
@@ -490,7 +574,9 @@ async function loadAppsCatalog() {
 }
 
 function applyFilters() {
-    const rows = Array.from(document.querySelectorAll('#apps-tbody tr')).filter((row) => row.dataset.appid);
+    const rows = Array.from(document.querySelectorAll('#apps-tbody tr')).filter(
+        (row) => row.dataset.appid
+    );
     if (!rows.length) {
         return;
     }
@@ -502,7 +588,11 @@ function applyFilters() {
         const name = row.dataset.name || '';
         const appId = row.dataset.appid || '';
         const source = row.dataset.source || '';
-        const matchesSearch = !currentSearch || name.includes(currentSearch) || appId.includes(currentSearch) || source.includes(currentSearch);
+        const matchesSearch =
+            !currentSearch ||
+            name.includes(currentSearch) ||
+            appId.includes(currentSearch) ||
+            source.includes(currentSearch);
         const visible = matchesFilter && matchesSearch;
         row.style.display = visible ? '' : 'none';
         if (visible) {
@@ -524,55 +614,335 @@ function filterAppsBySource(source) {
     applyFilters();
 }
 
-function getFavorites() {
+/* ---------------------------------------------------------------------------
+ * Permission basket and export generators.
+ * All data is hydrated from the live-built permissions catalog (real GUIDs).
+ * ------------------------------------------------------------------------- */
+
+async function loadPermissionsCatalog() {
+    if (!permissionsCatalogPromise) {
+        permissionsCatalogPromise = fetchJson('data/catalog/permissions.json').then((catalog) => {
+            const map = new Map();
+            (catalog.items || []).forEach((item) => {
+                map.set(item[0], {
+                    value: item[0],
+                    slug: item[1],
+                    category: item[2],
+                    applicationId: item[3] || '',
+                    delegatedId: item[4] || '',
+                    requiresAdmin: item[5] === 1
+                });
+            });
+            return { catalog, map };
+        });
+    }
+    return permissionsCatalogPromise;
+}
+
+function permissionDetailUrl(slug) {
+    return joinBasePath(`permissions/${slug}.html`);
+}
+
+function getBasket() {
     try {
-        return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+        return JSON.parse(localStorage.getItem(BASKET_KEY) || '[]');
     } catch {
         return [];
     }
 }
 
-function saveFavorites(favorites) {
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+function saveBasket(items) {
+    localStorage.setItem(BASKET_KEY, JSON.stringify(items));
 }
 
-function isFavorite(permissionValue) {
-    return getFavorites().includes(permissionValue);
+function isInBasket(permissionValue) {
+    return getBasket().includes(permissionValue);
 }
 
-function toggleFavorite(permissionValue) {
-    const favorites = getFavorites();
-    const index = favorites.indexOf(permissionValue);
-
-    if (index >= 0) {
-        favorites.splice(index, 1);
-        showToast('Removed from favorites', 'info');
-    } else {
-        favorites.push(permissionValue);
-        showToast('Added to favorites', 'success');
+function toggleBasket(permissionValue) {
+    if (!permissionValue) {
+        return;
     }
-
-    saveFavorites(favorites);
-    updateFavoriteButtons();
+    const basket = getBasket();
+    const index = basket.indexOf(permissionValue);
+    if (index >= 0) {
+        basket.splice(index, 1);
+        showToast('Removed from basket', 'info');
+    } else {
+        basket.push(permissionValue);
+        showToast('Added to basket', 'success');
+    }
+    saveBasket(basket);
+    updateBasketButtons();
+    updateCountBadges();
+    renderBasketPage();
 }
 
-function updateFavoriteButtons() {
-    document.querySelectorAll('.favorite-btn').forEach((button) => {
-        const active = isFavorite(button.dataset.permission);
+function updateBasketButtons() {
+    document.querySelectorAll('.basket-btn').forEach((button) => {
+        const active = isInBasket(button.dataset.permission);
         button.classList.toggle('active', active);
         button.setAttribute('aria-pressed', String(active));
+        button.setAttribute('title', active ? 'Remove from basket' : 'Add to basket');
     });
 }
 
-function initFavorites() {
-    document.querySelectorAll('.favorite-btn').forEach((button) => {
+function updateCountBadges() {
+    const basketCount = getBasket().length;
+    document.querySelectorAll('[data-basket-count]').forEach((element) => {
+        element.textContent = String(basketCount);
+        element.classList.toggle('has-items', basketCount > 0);
+    });
+}
+
+function initBasketButtons() {
+    document.querySelectorAll('.basket-btn').forEach((button) => {
         button.addEventListener('click', (event) => {
             event.preventDefault();
             event.stopPropagation();
-            toggleFavorite(button.dataset.permission);
+            toggleBasket(button.dataset.permission);
         });
     });
-    updateFavoriteButtons();
+    updateBasketButtons();
+}
+
+function renderCollectionCard(item) {
+    const badges = [];
+    if (item.applicationId) {
+        badges.push('<span class="mini-badge app">Application</span>');
+    }
+    if (item.delegatedId) {
+        badges.push('<span class="mini-badge delegated">Delegated</span>');
+    }
+    if (item.requiresAdmin) {
+        badges.push('<span class="mini-badge admin">Admin consent</span>');
+    }
+
+    const value = escapeHtml(item.value);
+
+    return `<div class="collection-item" data-permission="${value}">
+        <div class="collection-item-main">
+            <a href="${permissionDetailUrl(item.slug)}" class="collection-item-title"><code>${value}</code></a>
+            <div class="collection-item-meta"><span class="collection-category">${escapeHtml(item.category)}</span>${badges.join('')}</div>
+        </div>
+        <div class="collection-item-actions">
+            <button class="collection-action danger" data-remove="basket" data-permission="${value}" title="Remove">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+    </div>`;
+}
+
+function buildManifestExport(items, mode) {
+    const resourceAccess = items
+        .map((item) => ({
+            id: mode === 'application' ? item.applicationId : item.delegatedId,
+            type: mode === 'application' ? 'Role' : 'Scope'
+        }))
+        .filter((entry) => entry.id);
+
+    return JSON.stringify(
+        {
+            requiredResourceAccess: [
+                {
+                    resourceAppId: GRAPH_RESOURCE_APP_ID,
+                    resourceAccess
+                }
+            ]
+        },
+        null,
+        2
+    );
+}
+
+function buildPowerShellExport(items, mode) {
+    if (mode === 'delegated') {
+        const scopes = items
+            .filter((item) => item.delegatedId)
+            .map((item) => `'${item.value}'`)
+            .join(', ');
+        return `# Delegated permissions: sign in requesting these scopes\nConnect-MgGraph -Scopes @(${scopes})`;
+    }
+
+    const lines = [
+        '# Application permissions (app roles) for Microsoft Graph',
+        '# Requires: Microsoft.Graph PowerShell + an admin consent',
+        `$graphSp = Get-MgServicePrincipal -Filter "appId eq '${GRAPH_RESOURCE_APP_ID}'"`,
+        '$targetSpId = "<YOUR-APP-SERVICE-PRINCIPAL-OBJECT-ID>"',
+        ''
+    ];
+    items
+        .filter((item) => item.applicationId)
+        .forEach((item) => {
+            lines.push(`# ${item.value}`);
+            lines.push(
+                'New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $targetSpId ' +
+                    `-PrincipalId $targetSpId -ResourceId $graphSp.Id -AppRoleId "${item.applicationId}"`
+            );
+        });
+    return lines.join('\n');
+}
+
+function buildAzCliExport(items, mode) {
+    const type = mode === 'application' ? 'Role' : 'Scope';
+    const idKey = mode === 'application' ? 'applicationId' : 'delegatedId';
+    const grants = items
+        .filter((item) => item[idKey])
+        .map((item) => `${item[idKey]}=${type}`)
+        .join(' ');
+    return [
+        '# Replace <YOUR-APP-ID> with your application (client) ID',
+        `az ad app permission add --id <YOUR-APP-ID> \\`,
+        `  --api ${GRAPH_RESOURCE_APP_ID} \\`,
+        `  --api-permissions ${grants}`,
+        '',
+        '# Grant admin consent',
+        'az ad app permission admin-consent --id <YOUR-APP-ID>'
+    ].join('\n');
+}
+
+function buildTerraformExport(items, mode) {
+    const type = mode === 'application' ? 'Role' : 'Scope';
+    const idKey = mode === 'application' ? 'applicationId' : 'delegatedId';
+    const accessBlocks = items
+        .filter((item) => item[idKey])
+        .map(
+            (item) =>
+                `    resource_access {\n      id   = "${item[idKey]}" # ${item.value}\n      type = "${type}"\n    }`
+        )
+        .join('\n');
+    return [
+        'resource "azuread_application" "graph_app" {',
+        '  display_name = "my-graph-app"',
+        '',
+        '  required_resource_access {',
+        `    resource_app_id = "${GRAPH_RESOURCE_APP_ID}"`,
+        '',
+        accessBlocks,
+        '  }',
+        '}'
+    ].join('\n');
+}
+
+const EXPORT_BUILDERS = {
+    manifest: buildManifestExport,
+    powershell: buildPowerShellExport,
+    azcli: buildAzCliExport,
+    terraform: buildTerraformExport
+};
+
+function getBasketMode() {
+    const checked = document.querySelector('input[name="basket-mode"]:checked');
+    return checked ? checked.value : 'application';
+}
+
+function getActiveExportFormat() {
+    const active = document.querySelector('.export-format-btn.active');
+    return active ? active.dataset.format : 'manifest';
+}
+
+function updateBasketExportOutput(items) {
+    const output = document.getElementById('export-output');
+    if (!output) {
+        return;
+    }
+    const mode = getBasketMode();
+    const format = getActiveExportFormat();
+    const builder = EXPORT_BUILDERS[format] || EXPORT_BUILDERS.manifest;
+    const idKey = mode === 'application' ? 'applicationId' : 'delegatedId';
+    const usable = items.filter((item) => item[idKey]);
+
+    if (items.length === 0) {
+        output.textContent = '# Your basket is empty. Add permissions to generate exports.';
+        return;
+    }
+
+    output.textContent = builder(items, mode);
+
+    const warning = document.getElementById('export-warning');
+    if (warning) {
+        const skipped = items.length - usable.length;
+        if (skipped > 0) {
+            warning.hidden = false;
+            warning.textContent = `${skipped} permission(s) have no ${mode} variant and were skipped.`;
+        } else {
+            warning.hidden = true;
+        }
+    }
+}
+
+async function renderBasketPage() {
+    const container = document.getElementById('basket-items');
+    if (!container) {
+        return;
+    }
+    const emptyState = document.getElementById('basket-empty');
+    const layout = document.querySelector('.basket-layout');
+    const basket = getBasket();
+
+    if (basket.length === 0) {
+        container.innerHTML = '';
+        if (emptyState) {
+            emptyState.hidden = false;
+        }
+        if (layout) {
+            layout.hidden = true;
+        }
+        updateBasketExportOutput([]);
+        return;
+    }
+
+    const { map } = await loadPermissionsCatalog();
+    const items = basket.map((value) => map.get(value)).filter(Boolean);
+    if (emptyState) {
+        emptyState.hidden = true;
+    }
+    if (layout) {
+        layout.hidden = false;
+    }
+
+    container.innerHTML = items.map((item) => renderCollectionCard(item)).join('');
+    container.querySelectorAll('[data-remove="basket"]').forEach((button) => {
+        button.addEventListener('click', () => toggleBasket(button.dataset.permission));
+    });
+
+    updateBasketExportOutput(items);
+}
+
+function initBasketPageControls() {
+    const page = document.getElementById('basket-page');
+    if (!page) {
+        return;
+    }
+
+    page.querySelectorAll('input[name="basket-mode"]').forEach((input) => {
+        input.addEventListener('change', () => renderBasketPage());
+    });
+    page.querySelectorAll('.export-format-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+            page.querySelectorAll('.export-format-btn').forEach((item) =>
+                item.classList.remove('active')
+            );
+            button.classList.add('active');
+            renderBasketPage();
+        });
+    });
+
+    const copyExport = document.getElementById('copy-export');
+    if (copyExport) {
+        copyExport.addEventListener('click', () => {
+            copyToClipboard(document.getElementById('export-output')?.textContent || '');
+        });
+    }
+    const clearBasket = document.getElementById('clear-basket');
+    if (clearBasket) {
+        clearBasket.addEventListener('click', () => {
+            saveBasket([]);
+            updateCountBadges();
+            renderBasketPage();
+            showToast('Basket cleared', 'info');
+        });
+    }
 }
 
 function exportCurrentPage(format) {
@@ -582,23 +952,34 @@ function exportCurrentPage(format) {
         return;
     }
 
-    const payload = [{
-        permission: permissionValue,
-        category: document.querySelector('.breadcrumb span')?.textContent || '',
-        description: document.querySelector('.permission-desc')?.textContent || '',
-        applicationId: document.querySelector('.detail-card-app .id-code')?.textContent || '',
-        delegatedId: document.querySelector('.detail-card-delegated .id-code')?.textContent || '',
-        exportedAt: new Date().toISOString()
-    }];
+    const payload = [
+        {
+            permission: permissionValue,
+            category: document.querySelector('.breadcrumb span')?.textContent || '',
+            description: document.querySelector('.permission-desc')?.textContent || '',
+            applicationId: document.querySelector('.detail-card-app .id-code')?.textContent || '',
+            delegatedId:
+                document.querySelector('.detail-card-delegated .id-code')?.textContent || '',
+            exportedAt: new Date().toISOString()
+        }
+    ];
 
     if (format === 'json') {
-        downloadBlob(new Blob([JSON.stringify(payload[0], null, 2)], { type: 'application/json' }), `${permissionValue.toLowerCase().replace(/\./g, '-')}.json`);
+        downloadBlob(
+            new Blob([JSON.stringify(payload[0], null, 2)], { type: 'application/json' }),
+            `${permissionValue.toLowerCase().replace(/\./g, '-')}.json`
+        );
     } else {
         const csv = [
             Object.keys(payload[0]).join(','),
-            Object.values(payload[0]).map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')
+            Object.values(payload[0])
+                .map((value) => `"${String(value).replace(/"/g, '""')}"`)
+                .join(',')
         ].join('\n');
-        downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), `${permissionValue.toLowerCase().replace(/\./g, '-')}.csv`);
+        downloadBlob(
+            new Blob([csv], { type: 'text/csv;charset=utf-8;' }),
+            `${permissionValue.toLowerCase().replace(/\./g, '-')}.csv`
+        );
     }
 
     showToast(`Exported as ${format.toUpperCase()}`, 'success');
@@ -692,7 +1073,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     initTheme();
     initSidebarToggle();
     initTabs();
-    initFavorites();
+    initBasketButtons();
+    initBasketPageControls();
+    updateCountBadges();
     initExportMenu();
     initToastNotifications();
 
@@ -722,7 +1105,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.querySelectorAll('.filter-btn').forEach((button) => {
         button.addEventListener('click', () => {
-            document.querySelectorAll('.filter-btn').forEach((item) => item.classList.remove('active'));
+            document
+                .querySelectorAll('.filter-btn')
+                .forEach((item) => item.classList.remove('active'));
             button.classList.add('active');
             filterAppsBySource(button.dataset.filter);
         });
@@ -737,6 +1122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyFilters();
     highlightHashTarget();
     updateCanonicalUrl();
+    renderBasketPage();
     window.addEventListener('hashchange', () => {
         updateCanonicalUrl();
         highlightHashTarget();
@@ -756,15 +1142,19 @@ function initScrollToTop() {
     if (!btn) return;
 
     let ticking = false;
-    window.addEventListener('scroll', () => {
-        if (!ticking) {
-            window.requestAnimationFrame(() => {
-                btn.classList.toggle('visible', window.scrollY > 400);
-                ticking = false;
-            });
-            ticking = true;
-        }
-    }, { passive: true });
+    window.addEventListener(
+        'scroll',
+        () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    btn.classList.toggle('visible', window.scrollY > 400);
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        },
+        { passive: true }
+    );
 
     btn.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -774,7 +1164,10 @@ function initScrollToTop() {
 function initTableOverflowHints() {
     document.querySelectorAll('.table-container').forEach((container) => {
         const checkOverflow = () => {
-            container.classList.toggle('has-overflow', container.scrollWidth > container.clientWidth);
+            container.classList.toggle(
+                'has-overflow',
+                container.scrollWidth > container.clientWidth
+            );
         };
         checkOverflow();
         window.addEventListener('resize', checkOverflow, { passive: true });

@@ -4,8 +4,12 @@ const os = require('os');
 const path = require('path');
 const test = require('node:test');
 
-const { buildSite } = require('../Script/node/build-site');
-const { normalizeRawData, validateNormalizedData, writeNormalizedData } = require('../src/lib/site-data');
+const { buildSite } = require('../scripts/node/build-site');
+const {
+    normalizeRawData,
+    validateNormalizedData,
+    writeNormalizedData
+} = require('../src/lib/site-data');
 const thresholds = require('../src/config/validation-thresholds');
 
 const fixturesDir = path.join(__dirname, '..', 'fixtures', 'raw');
@@ -69,17 +73,25 @@ test('fixture validation passes and build writes public JSON contracts', () => {
     assert.match(appsPage, /build-info\.json/);
     assert.match(appsPage, /Catalog structure/);
 
-    const appsManifest = JSON.parse(fs.readFileSync(path.join(outputDir, 'data', 'catalog', 'apps-manifest.json'), 'utf8'));
+    const appsManifest = JSON.parse(
+        fs.readFileSync(path.join(outputDir, 'data', 'catalog', 'apps-manifest.json'), 'utf8')
+    );
     assert.ok(!Object.hasOwn(appsManifest, 'pages'));
     assert.equal(appsManifest.searchIndex[0].length, 3);
 
     const mysteryApp = normalized.apps.find((item) => item.title === 'Mystery Microsoft App');
     assert.ok(mysteryApp);
-    const appDetailPage = fs.readFileSync(path.join(outputDir, 'apps', `${mysteryApp.anchor}.html`), 'utf8');
+    const appDetailPage = fs.readFileSync(
+        path.join(outputDir, 'apps', `${mysteryApp.anchor}.html`),
+        'utf8'
+    );
     assert.match(appDetailPage, /Mystery Microsoft App/);
     assert.match(appDetailPage, /Community maintained/);
 
-    const permissionPage = fs.readFileSync(path.join(outputDir, 'permissions', 'user-read-all.html'), 'utf8');
+    const permissionPage = fs.readFileSync(
+        path.join(outputDir, 'permissions', 'user-read-all.html'),
+        'utf8'
+    );
     assert.match(permissionPage, /Exact Microsoft Learn match/);
     assert.match(permissionPage, /Get-MgUser/);
     assert.match(permissionPage, /View official example on Microsoft Learn/);
@@ -100,7 +112,9 @@ test('normalizeRawData accepts sharded code example files', () => {
         fs.copyFileSync(path.join(fixturesDir, entry), path.join(rawDir, entry));
     }
 
-    const codeExamples = JSON.parse(fs.readFileSync(path.join(fixturesDir, 'GraphPermissionCodeExamples.json'), 'utf8'));
+    const codeExamples = JSON.parse(
+        fs.readFileSync(path.join(fixturesDir, 'GraphPermissionCodeExamples.json'), 'utf8')
+    );
     const entries = Object.entries(codeExamples);
     fs.writeFileSync(
         path.join(rawDir, 'GraphPermissionCodeExamples.part-001.json'),

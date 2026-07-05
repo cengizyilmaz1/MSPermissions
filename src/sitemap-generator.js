@@ -17,7 +17,9 @@ class SitemapGenerator {
     }
 
     escapeXml(str) {
-        if (!str) return '';
+        if (!str) {
+            return '';
+        }
         return String(str)
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
@@ -40,11 +42,15 @@ class SitemapGenerator {
         entry += `    <changefreq>${changefreq}</changefreq>\n`;
         entry += `    <priority>${priority}</priority>\n`;
 
-        images.forEach(img => {
+        images.forEach((img) => {
             entry += '    <image:image>\n';
             entry += `      <image:loc>${this.escapeXml(img.url)}</image:loc>\n`;
-            if (img.title) entry += `      <image:title>${this.escapeXml(img.title)}</image:title>\n`;
-            if (img.caption) entry += `      <image:caption>${this.escapeXml(img.caption)}</image:caption>\n`;
+            if (img.title) {
+                entry += `      <image:title>${this.escapeXml(img.title)}</image:title>\n`;
+            }
+            if (img.caption) {
+                entry += `      <image:caption>${this.escapeXml(img.caption)}</image:caption>\n`;
+            }
             entry += '    </image:image>\n';
         });
 
@@ -55,33 +61,31 @@ class SitemapGenerator {
     generatePermissionsSitemap(permissions, lastmod = this.getISODate()) {
         let urls = '';
 
-        permissions.forEach(perm => {
+        permissions.forEach((perm) => {
             let priority = 0.7;
-            if (perm.application && perm.delegated) priority = 0.8;
-            if (perm.category.match(/User|Group|Mail|Files|Calendar/i)) priority = 0.85;
+            if (perm.application && perm.delegated) {
+                priority = 0.8;
+            }
+            if (perm.category.match(/User|Group|Mail|Files|Calendar/i)) {
+                priority = 0.85;
+            }
 
-            urls += this.generateUrlEntry(
-                `${this.baseUrl}/permissions/${perm.slug}.html`,
-                {
-                    lastmod,
-                    changefreq: 'weekly',
-                    priority: priority.toFixed(1)
-                }
-            );
+            urls += this.generateUrlEntry(`${this.baseUrl}/permissions/${perm.slug}.html`, {
+                lastmod,
+                changefreq: 'weekly',
+                priority: priority.toFixed(1)
+            });
         });
 
         return this.wrapSitemap(urls);
     }
 
     generateAppsOverviewSitemap(lastmod = this.getISODate()) {
-        const urls = this.generateUrlEntry(
-            `${this.baseUrl}/microsoft-apps.html`,
-            {
-                lastmod,
-                changefreq: 'daily',
-                priority: 0.9
-            }
-        );
+        const urls = this.generateUrlEntry(`${this.baseUrl}/microsoft-apps.html`, {
+            lastmod,
+            changefreq: 'daily',
+            priority: 0.9
+        });
 
         return this.wrapSitemap(urls);
     }
@@ -90,35 +94,29 @@ class SitemapGenerator {
         let urls = '';
 
         apps.forEach((app) => {
-            urls += this.generateUrlEntry(
-                `${this.baseUrl}/apps/${app.anchor}.html`,
-                {
-                    lastmod,
-                    changefreq: 'weekly',
-                    priority: app.isCommunity ? 0.6 : 0.7
-                }
-            );
+            urls += this.generateUrlEntry(`${this.baseUrl}/apps/${app.anchor}.html`, {
+                lastmod,
+                changefreq: 'weekly',
+                priority: app.isCommunity ? 0.6 : 0.7
+            });
         });
 
         return this.wrapSitemap(urls);
     }
 
     generateMainSitemap(lastmod = this.getISODate()) {
-        const urls = this.generateUrlEntry(
-            `${this.baseUrl}/`,
-            {
-                lastmod,
-                changefreq: 'daily',
-                priority: 1.0,
-                images: [
-                    {
-                        url: `${this.baseUrl}/og-image.png`,
-                        title: 'Graph Permissions Explorer',
-                        caption: 'Microsoft Graph API permissions reference'
-                    }
-                ]
-            }
-        );
+        const urls = this.generateUrlEntry(`${this.baseUrl}/`, {
+            lastmod,
+            changefreq: 'daily',
+            priority: 1.0,
+            images: [
+                {
+                    url: `${this.baseUrl}/og-image.png`,
+                    title: 'Graph Permissions Explorer',
+                    caption: 'Microsoft Graph API permissions reference'
+                }
+            ]
+        });
 
         return this.wrapSitemap(urls);
     }
@@ -128,7 +126,7 @@ class SitemapGenerator {
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 `;
 
-        sitemapEntries.forEach(entry => {
+        sitemapEntries.forEach((entry) => {
             content += `  <sitemap>
     <loc>${this.baseUrl}/${entry.file}</loc>
     <lastmod>${entry.lastmod}</lastmod>
@@ -170,9 +168,10 @@ ${urls}</urlset>`;
 
         const permChunks = this.chunkArray(permissions, this.maxUrlsPerSitemap);
         permChunks.forEach((chunk, index) => {
-            const filename = permChunks.length === 1
-                ? 'sitemap-permissions.xml'
-                : `sitemap-permissions-${index + 1}.xml`;
+            const filename =
+                permChunks.length === 1
+                    ? 'sitemap-permissions.xml'
+                    : `sitemap-permissions-${index + 1}.xml`;
 
             fs.writeFileSync(
                 path.join(this.outputDir, filename),
@@ -190,9 +189,10 @@ ${urls}</urlset>`;
 
         const appChunks = this.chunkArray(apps, this.maxUrlsPerSitemap);
         appChunks.forEach((chunk, index) => {
-            const filename = appChunks.length === 1
-                ? 'sitemap-app-details.xml'
-                : `sitemap-app-details-${index + 1}.xml`;
+            const filename =
+                appChunks.length === 1
+                    ? 'sitemap-app-details.xml'
+                    : `sitemap-app-details-${index + 1}.xml`;
 
             fs.writeFileSync(
                 path.join(this.outputDir, filename),
@@ -200,7 +200,9 @@ ${urls}</urlset>`;
             );
             sitemapEntries.push({ file: filename, lastmod: appsLastmod });
         });
-        console.log(`  Generated apps sitemap (${appChunks.length} app detail sitemap(s) + overview)`);
+        console.log(
+            `  Generated apps sitemap (${appChunks.length} app detail sitemap(s) + overview)`
+        );
 
         fs.writeFileSync(
             path.join(this.outputDir, 'sitemap.xml'),

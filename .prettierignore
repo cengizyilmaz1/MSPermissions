@@ -1,0 +1,17 @@
+# Dependencies & lockfiles
+node_modules/
+package-lock.json
+
+# Generated output
+docs/
+.generated/
+.cache/
+
+# Large data snapshots (machine-generated, not hand-formatted)
+data/
+fixtures/
+customdata/
+
+# Assets not handled by prettier config
+src/templates/css/
+src/templates/**/*.html

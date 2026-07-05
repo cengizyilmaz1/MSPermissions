@@ -2,7 +2,7 @@ class SEOOptimizer {
     constructor(options = {}) {
         this.siteName = options.siteName || 'Graph Permissions Explorer';
         this.siteUrl = options.siteUrl || 'https://permissions.cengizyilmaz.net';
-        this.author = options.author || 'Cengiz Yilmaz';
+        this.author = options.author || 'Cengiz YILMAZ';
         this.twitterHandle = options.twitterHandle || '@cengizyilmaz_';
     }
 
@@ -33,9 +33,8 @@ class SEOOptimizer {
             permissionType = 'Application';
         }
 
-        const baseDescription = permission.application?.description
-            || permission.delegated?.description
-            || '';
+        const baseDescription =
+            permission.application?.description || permission.delegated?.description || '';
 
         let description = `${value} is a ${permissionType} permission in Microsoft Graph API. `;
 
@@ -209,9 +208,7 @@ class SEOOptimizer {
     }
 
     generateAppDetailDescription(app) {
-        const trustText = app.isCommunity
-            ? 'community-maintained'
-            : 'official Microsoft';
+        const trustText = app.isCommunity ? 'community-maintained' : 'official Microsoft';
 
         return `${app.title} is a ${trustText} application identifier in the Graph Permissions Explorer catalog. Use App ID ${app.appId} for sign-in log analysis, service principal investigations, and reference sharing.`;
     }
@@ -279,7 +276,7 @@ class SEOOptimizer {
         return entries;
     }
 
-    generateHomepageTitle(stats) {
+    generateHomepageTitle(_stats) {
         return 'Microsoft Graph Permissions Reference | Graph Permissions';
     }
 
@@ -340,7 +337,8 @@ class SEOOptimizer {
                 mainEntity: {
                     '@type': 'Dataset',
                     name: 'Graph Permissions Explorer catalog',
-                    description: 'Structured catalog of Microsoft Graph permissions, methods, code examples, and Microsoft first-party application IDs.',
+                    description:
+                        'Structured catalog of Microsoft Graph permissions, methods, code examples, and Microsoft first-party application IDs.',
                     url: `${this.siteUrl}/build-info.json`
                 }
             },
@@ -348,7 +346,8 @@ class SEOOptimizer {
                 '@context': 'https://schema.org',
                 '@type': 'Dataset',
                 name: 'Graph Permissions Explorer public catalog',
-                description: 'Public JSON catalogs for Microsoft Graph permissions and Microsoft first-party application IDs.',
+                description:
+                    'Public JSON catalogs for Microsoft Graph permissions and Microsoft first-party application IDs.',
                 url: `${this.siteUrl}/build-info.json`,
                 license: 'https://opensource.org/licenses/MIT',
                 creator: {
