@@ -4736,13 +4736,8 @@ a.stat-card-large:hover::before {
 }
 
 /* ================================
-   Hero Floating Animation
+   Hero Background Glow
    ================================ */
-
-@keyframes heroFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-}
 
 @keyframes heroPulse {
     0%, 100% { opacity: 0.5; }
@@ -4760,10 +4755,6 @@ a.stat-card-large:hover::before {
     border-radius: 50%;
     animation: heroPulse 4s ease-in-out infinite;
     pointer-events: none;
-}
-
-.hero-badge {
-    animation: heroFloat 3s ease-in-out infinite;
 }
 
 /* ================================
