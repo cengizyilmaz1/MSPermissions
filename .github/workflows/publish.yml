@@ -15,7 +15,7 @@ permissions:
   id-token: write
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "22"
   POWERSHELL_MODULE_CACHE_PATH: /home/runner/.local/share/powershell/Modules
   GRAPH_OPENAPI_CACHE_DIR: ${{ github.workspace }}/.cache/graph-openapi
   GRAPH_DOCS_CACHE_DIR: ${{ github.workspace }}/.cache/graph-docs
@@ -122,3 +122,5 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          timeout: 900000

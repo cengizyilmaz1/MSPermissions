@@ -285,7 +285,7 @@ The production workflow uses artifact deploy. It does not commit generated `docs
 
 For `npm run refresh:data`, you need:
 
-- Node.js 20+
+- Node.js 22+
 - PowerShell (`pwsh` or Windows PowerShell)
 - Azure CLI logged in
 - permission to obtain a Microsoft Graph access token

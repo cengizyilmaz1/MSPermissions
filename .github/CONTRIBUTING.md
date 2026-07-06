@@ -8,7 +8,7 @@ artifact.
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) `>=20` (see [`.nvmrc`](.nvmrc))
+- [Node.js](https://nodejs.org/) `22` (see [`.nvmrc`](.nvmrc))
 - npm `>=10`
 - For a full upstream refresh: PowerShell 7+, Azure CLI, and Microsoft Graph
   PowerShell modules
