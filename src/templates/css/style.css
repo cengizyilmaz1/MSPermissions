@@ -5615,5 +5615,94 @@ body {
     color: var(--text-muted);
 }
 
+/* ==========================================================================
+   Design v4 — left category navigation sidebar (loaded last)
+   ========================================================================== */
+.sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--hairline);
+}
+.sidebar-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--hairline);
+    padding: 0.9rem;
+}
+.sidebar-header input {
+    background: var(--bg-tertiary);
+    border-color: var(--hairline);
+    font-size: 0.85rem;
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        background var(--transition);
+}
+.sidebar-header input:focus {
+    border-color: var(--accent);
+    background: var(--bg);
+    box-shadow: 0 0 0 3px var(--ring);
+}
+.sidebar-header input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Category headers — display type, quiet until hover/expanded */
+.nav-category-header {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: -0.01em;
+    color: var(--text-secondary);
+    padding: 0.55rem 0.65rem;
+}
+.nav-category-header:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+.nav-category.expanded > .nav-category-header {
+    color: var(--text);
+}
+.nav-icon {
+    color: var(--text-muted);
+}
+.nav-category-header:hover .nav-icon {
+    color: var(--accent);
+}
+.nav-count {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--hairline);
+    color: var(--text-muted);
+    border-radius: var(--radius-full);
+    font-variant-numeric: tabular-nums;
+    padding: 0.1rem 0.45rem;
+}
+
+/* Nav items — quiet by default, accent pill indicator on hover/active */
+.nav-item {
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    font-weight: 500;
+    padding: 0.45rem 0.7rem 0.45rem 1.75rem;
+    border-left: none;
+}
+.nav-item::before {
+    left: 0.7rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 2px;
+    border-radius: var(--radius-full);
+    background: var(--accent);
+}
+.nav-item:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    text-decoration: none;
+    border-left-color: transparent;
+}
+.nav-item.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-left-color: transparent;
+}
+
 
 
