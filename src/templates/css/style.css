@@ -4407,29 +4407,6 @@ kbd {
     transition: width 0.3s ease;
 }
 
-/* Favorites Button */
-.favorite-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    color: var(--text-muted);
-    transition: all var(--transition);
-}
-
-.favorite-btn:hover {
-    color: #f59e0b;
-    transform: scale(1.1);
-}
-
-.favorite-btn.active {
-    color: #f59e0b;
-}
-
-.favorite-btn.active svg {
-    fill: #f59e0b;
-}
-
 /* Compare Mode */
 .compare-mode .permission-section {
     display: grid;
@@ -5106,383 +5083,9 @@ a.stat-card-large:hover::before {
     }
 }
 
-/* ==========================================================================
-   Favorites, Basket & Export (collection pages)
-   ========================================================================== */
-
 /* Ensure the hidden attribute always wins over display:flex/grid rules */
 [hidden] {
     display: none !important;
-}
-
-/* Header nav count badges */
-.nav-badge.nav-count {
-    background: var(--bg-tertiary);
-    color: var(--text-muted);
-    min-width: 1.25rem;
-    text-align: center;
-}
-.nav-badge.nav-count.has-items {
-    background: var(--accent);
-    color: #fff;
-    border-color: transparent;
-}
-
-/* Basket toggle button in the permission header */
-.basket-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface-raised);
-    color: var(--text-secondary);
-    transition: all var(--transition);
-}
-.basket-btn svg {
-    width: 18px;
-    height: 18px;
-}
-.basket-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-}
-.basket-btn.active {
-    background: var(--accent);
-    border-color: transparent;
-    color: #fff;
-}
-
-/* Collection page shell */
-.collection-page {
-    max-width: 1100px;
-    margin: 0 auto;
-}
-.collection-hero {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    padding: clamp(1.75rem, 4vw, 2.75rem);
-    margin-bottom: 2rem;
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius-xl);
-    background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
-    box-shadow: var(--shadow-md);
-}
-.collection-hero-icon {
-    flex-shrink: 0;
-    width: 56px;
-    height: 56px;
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--gradient-primary);
-}
-.collection-hero-icon svg {
-    width: 28px;
-    height: 28px;
-    color: #fff;
-}
-.collection-hero h1 {
-    margin: 0 0 0.25rem;
-    font-size: clamp(1.5rem, 3vw, 2rem);
-}
-.collection-hero p {
-    margin: 0;
-    color: var(--text-secondary);
-    max-width: 60ch;
-}
-
-/* Empty state */
-.collection-empty {
-    text-align: center;
-    padding: 3rem 1.5rem;
-    border: 1px dashed var(--border);
-    border-radius: var(--radius-lg);
-    color: var(--text-secondary);
-}
-.collection-empty svg {
-    width: 48px;
-    height: 48px;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
-}
-.collection-empty h2 {
-    margin: 0 0 0.5rem;
-}
-.collection-empty p {
-    margin: 0 auto 1.5rem;
-    max-width: 44ch;
-}
-
-/* Collection list & items */
-.collection-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-.collection-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.9rem 1.1rem;
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-    background: var(--surface);
-    box-shadow: var(--shadow-xs);
-    transition: box-shadow var(--transition), border-color var(--transition);
-}
-.collection-item:hover {
-    box-shadow: var(--shadow);
-    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
-}
-.collection-item-main {
-    min-width: 0;
-}
-.collection-item-title {
-    display: inline-block;
-    font-family: var(--font-mono);
-    font-weight: 500;
-    text-decoration: none;
-}
-.collection-item-title code {
-    color: var(--text);
-}
-.collection-item-title:hover code {
-    color: var(--accent);
-}
-.collection-item-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: 0.35rem;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
-.mini-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.1rem 0.5rem;
-    border-radius: var(--radius-full);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    border: 1px solid var(--hairline);
-}
-.mini-badge.app {
-    background: var(--accent-soft);
-    color: var(--accent);
-}
-.mini-badge.delegated {
-    background: color-mix(in srgb, var(--success) 15%, transparent);
-    color: var(--success);
-}
-.mini-badge.admin {
-    background: color-mix(in srgb, var(--warning) 18%, transparent);
-    color: var(--warning);
-}
-.collection-item-actions {
-    display: flex;
-    gap: 0.4rem;
-    flex-shrink: 0;
-}
-.collection-action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--surface-raised);
-    color: var(--text-secondary);
-    transition: all var(--transition);
-}
-.collection-action svg {
-    width: 16px;
-    height: 16px;
-}
-.collection-action:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-}
-.collection-action.danger:hover {
-    border-color: var(--danger);
-    color: var(--danger);
-}
-
-/* Basket layout */
-.basket-layout {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 1.5rem;
-    align-items: start;
-}
-@media (max-width: 900px) {
-    .basket-layout {
-        grid-template-columns: 1fr;
-    }
-}
-.panel-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-}
-.panel-head h2 {
-    margin: 0;
-    font-size: 1.15rem;
-}
-.text-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--radius-sm);
-    transition: color var(--transition);
-}
-.text-btn:hover {
-    color: var(--danger);
-}
-
-/* Basket tools */
-.basket-tools-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    position: sticky;
-    top: calc(var(--header-height) + 1rem);
-}
-.tool-card {
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius-lg);
-    background: var(--surface);
-    padding: 1.25rem;
-    box-shadow: var(--shadow-xs);
-}
-.tool-card-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
-.tool-card-head h3 {
-    margin: 0;
-    font-size: 1rem;
-}
-.mode-toggle {
-    display: inline-flex;
-    gap: 0.75rem;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-}
-.mode-toggle label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    cursor: pointer;
-}
-.mode-toggle span {
-    color: var(--text-muted);
-}
-.export-format-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-bottom: 0.9rem;
-}
-.export-format-btn {
-    padding: 0.4rem 0.8rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-full);
-    background: var(--surface-raised);
-    color: var(--text-secondary);
-    font-size: 0.8rem;
-    font-weight: 500;
-    transition: all var(--transition);
-}
-.export-format-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-}
-.export-format-btn.active {
-    background: var(--accent);
-    border-color: transparent;
-    color: #fff;
-}
-.export-warning {
-    margin: 0 0 0.75rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--warning) 15%, transparent);
-    color: var(--warning);
-    font-size: 0.8rem;
-}
-.export-output-wrap {
-    position: relative;
-}
-.export-output-wrap pre {
-    margin: 0;
-    padding: 1rem;
-    padding-top: 2.25rem;
-    background: var(--code-bg);
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-    overflow-x: auto;
-    max-height: 340px;
-}
-.export-output-wrap code {
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-    line-height: 1.6;
-    white-space: pre;
-    color: var(--text);
-}
-.export-output-wrap .copy-btn {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    z-index: 1;
-}
-.consent-inputs {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-}
-.consent-inputs label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-}
-.consent-inputs input {
-    padding: 0.55rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-}
-.consent-inputs input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--ring);
-}
-.tool-hint {
-    margin: 0 0 1rem;
-    font-size: 0.85rem;
-    color: var(--text-muted);
 }
 
 /* ==========================================================================
@@ -5505,7 +5108,6 @@ a.stat-card-large:hover::before {
 /* Display typeface + tighter optical tracking on headings */
 .logo-text,
 .index-hero h1,
-.collection-hero h1,
 .hero-badge,
 h1,
 h2,
@@ -5517,8 +5119,7 @@ h3,
 }
 h1,
 h2,
-.index-hero h1,
-.collection-hero h1 {
+.index-hero h1 {
     letter-spacing: -0.03em;
     font-weight: 700;
 }
@@ -5532,7 +5133,6 @@ h3 {
 .nav-badge,
 .count-badge,
 .id-code,
-.mini-badge,
 .footer-meta {
     font-variant-numeric: tabular-nums;
 }
@@ -5540,11 +5140,7 @@ h3 {
 /* Tactile press feedback across interactive controls */
 .btn,
 .action-btn,
-.basket-btn,
-.favorite-btn,
 .filter-btn,
-.export-format-btn,
-.collection-action,
 .theme-btn,
 .tab-btn,
 .method-tab-btn,
@@ -5558,10 +5154,6 @@ h3 {
 }
 .btn:active,
 .action-btn:active,
-.basket-btn:active,
-.favorite-btn:active,
-.export-format-btn:active,
-.collection-action:active,
 .copy-btn:active,
 .quick-link:active,
 .stat-card:active {
@@ -5741,13 +5333,286 @@ body {
     border-bottom: none;
 }
 
-/* Graph Explorer launch button on the basket page */
-.graph-explorer-btn {
-    width: 100%;
-    justify-content: center;
+/* ==========================================================================
+   Design v4 — enterprise permission detail refinement (loaded last)
+   ========================================================================== */
+
+/* Header — quieter hairline rule + tighter rhythm */
+.permission-header {
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--hairline);
 }
-.graph-explorer-card .tool-hint {
-    margin-bottom: 1.1rem;
+.permission-title-row {
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.permission-title-row h1 {
+    font-size: clamp(1.6rem, 3.2vw, 2.1rem);
+    letter-spacing: -0.03em;
+}
+
+/* Title chip — clean monospace surface (drop the heavy gradient) */
+.permission-title-row code {
+    background: var(--surface);
+    border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--hairline));
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.9em;
+    padding: 0.35rem 0.7rem;
+    border-radius: var(--radius);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+/* Action buttons — refined square with soft accent hover */
+.action-btn {
+    width: 38px;
+    height: 38px;
+    background: var(--surface);
+    border-color: var(--hairline);
+}
+.action-btn:hover {
+    background: var(--accent-soft);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    color: var(--accent);
+}
+
+/* Badges — flat, tabular, fully theme-aware (fixes dark-mode read/write) */
+.badge {
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 600;
+    box-shadow: none;
+    transition:
+        border-color var(--transition),
+        background var(--transition);
+}
+.badge:hover {
+    transform: none;
+    box-shadow: none;
+}
+.badge-app {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.badge-delegated {
+    background: color-mix(in srgb, var(--success) 14%, transparent);
+    color: var(--success);
+    border-color: color-mix(in srgb, var(--success) 32%, transparent);
+}
+.badge-write,
+.badge-readwrite {
+    background: color-mix(in srgb, var(--warning) 15%, transparent);
+    color: var(--warning);
+    border-color: color-mix(in srgb, var(--warning) 32%, transparent);
+}
+.badge-full {
+    background: color-mix(in srgb, var(--danger) 14%, transparent);
+    color: var(--danger);
+    border-color: color-mix(in srgb, var(--danger) 32%, transparent);
+}
+.badge-read,
+.badge-scope {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border-color: var(--hairline);
+}
+
+/* Description — comfortable measure + tone */
+.permission-desc {
+    font-size: 1.02rem;
+    color: var(--text-secondary);
+    line-height: 1.75;
+    max-width: 72ch;
+}
+
+/* Freshness + access indicators — quieter chips */
+.permission-freshness {
+    margin-top: 1.25rem;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+}
+.access-indicator {
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--radius);
+    font-size: 0.82rem;
+    box-shadow: none;
+}
+.access-indicator:hover {
+    transform: none;
+}
+.access-indicator.supported {
+    background: color-mix(in srgb, var(--success) 12%, transparent);
+    color: var(--success);
+    border-color: color-mix(in srgb, var(--success) 30%, transparent);
+    box-shadow: none;
+}
+
+/* Section headers — icon in a tinted square + lighter rule */
+.permission-section h2 {
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--hairline);
+}
+.permission-section h2 svg {
+    box-sizing: content-box;
+    width: 18px;
+    height: 18px;
+    padding: 7px;
+    border-radius: var(--radius);
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+/* Detail cards — calm surface, accent border on hover (no lift) */
+.detail-card {
+    border-color: var(--hairline);
+    box-shadow: var(--shadow-xs);
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition);
+}
+.detail-card:hover {
+    transform: none;
+    box-shadow: var(--shadow);
+    border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+}
+.card-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--hairline);
+    padding: 0.85rem 1.25rem;
+}
+
+/* App registration — modern connected stepper */
+.registration-steps {
+    position: relative;
+    gap: 0;
+}
+.reg-step {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    padding: 0 0 1.75rem;
+    gap: 1rem;
+}
+.reg-step:last-child {
+    padding-bottom: 0;
+}
+.reg-step:hover {
+    transform: none;
+    box-shadow: none;
+}
+.reg-step::before {
+    left: 18px;
+    top: 42px;
+    bottom: -2px;
+    width: 2px;
+    background: var(--hairline);
+    border-radius: 0;
+}
+.reg-step:last-child::before {
+    display: none;
+}
+.step-number {
+    position: relative;
+    z-index: 1;
+    width: 38px;
+    height: 38px;
+    background: var(--surface);
+    color: var(--accent);
+    border: 1.5px solid color-mix(in srgb, var(--accent) 45%, var(--hairline));
+    box-shadow: none;
+    font-family: var(--font-display);
+}
+.step-content {
+    padding-top: 0.35rem;
+}
+.step-content code {
+    background: var(--accent-soft);
+    border-radius: var(--radius-sm);
+}
+
+/* Sidebar — permission ID value chips + type pills */
+.id-value {
+    font-family: var(--font-mono);
+    border: 1px solid var(--hairline);
+    background: var(--bg-tertiary);
+}
+.id-value:hover {
+    border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+    color: var(--accent);
+}
+.id-type.app {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+.id-type.del {
+    background: color-mix(in srgb, var(--success) 15%, transparent);
+    color: var(--success);
+}
+
+/* Graph Methods + Code Examples — flat segmented tab controls */
+.code-tabs {
+    border-color: var(--hairline);
+    box-shadow: var(--shadow-xs);
+}
+.method-tabs {
+    box-shadow: var(--shadow-xs);
+}
+.tab-buttons {
+    background: var(--surface);
+    border-bottom: 1px solid var(--hairline);
+}
+.tab-btn {
+    padding: 0.8rem 1.35rem;
+    border-bottom-width: 2px;
+    font-size: 0.85rem;
+}
+.tab-btn:hover {
+    color: var(--text);
+    background: var(--accent-soft);
+}
+.tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: var(--surface);
+}
+.method-tab-buttons {
+    background: var(--surface);
+    border-color: var(--hairline);
+    gap: 0.4rem;
+    padding: 0.6rem;
+}
+.method-tab-btn {
+    border-radius: var(--radius-full);
+    border-color: var(--hairline);
+    font-weight: 600;
+    font-size: 0.82rem;
+}
+.method-tab-btn:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+    transform: none;
+}
+.method-tab-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: none;
+    transform: none;
+}
+.access-legend {
+    background: var(--surface);
+    border-color: var(--hairline);
+    gap: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
 }
 
 

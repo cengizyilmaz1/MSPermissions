@@ -142,7 +142,6 @@ function buildLlmsTxt(normalized) {
         '## Important URLs',
         `- Home: ${SITE_URL}/`,
         `- Microsoft apps: ${SITE_URL}/microsoft-apps.html`,
-        `- Permission basket & export tool: ${SITE_URL}/basket.html`,
         `- Sitemap: ${SITE_URL}/sitemap.xml`,
         `- Robots: ${SITE_URL}/robots.txt`,
         `- Extended AI discovery: ${SITE_URL}/llms-full.txt`,
@@ -287,7 +286,6 @@ function createLayoutRenderer(templates, normalized, seoOptimizer) {
             CONTENT: content,
             NAV_PERMISSIONS_ACTIVE: navSection === 'permissions' ? 'active' : '',
             NAV_APPS_ACTIVE: navSection === 'apps' ? 'active' : '',
-            NAV_BASKET_ACTIVE: navSection === 'basket' ? 'active' : '',
             TOTAL_PERMISSIONS: String(normalized.stats.permissions),
             TOTAL_CATEGORIES: String(normalized.stats.categories),
             TOTAL_APPS: String(normalized.stats.apps),
@@ -411,8 +409,7 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
         index: readUtf8(path.join(TEMPLATE_DIR, 'index.html')),
         permission: readUtf8(path.join(TEMPLATE_DIR, 'permission.html')),
         apps: readUtf8(path.join(TEMPLATE_DIR, 'apps.html')),
-        app: readUtf8(path.join(TEMPLATE_DIR, 'app.html')),
-        basket: readUtf8(path.join(TEMPLATE_DIR, 'basket.html'))
+        app: readUtf8(path.join(TEMPLATE_DIR, 'app.html'))
     };
     const seoOptimizer = new SEOOptimizer({
         siteName: SITE_NAME,
@@ -477,21 +474,6 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
         ].join('\n')
     });
     writeText(path.join(outputRoot, 'microsoft-apps.html'), appsHtml);
-
-    const basketHtml = renderLayout({
-        content: templates.basket,
-        sidebar: generateSidebar(categories, null, '.'),
-        pageTitle: 'Permission basket & export | Graph Permissions',
-        pageDescription:
-            'Collect Microsoft Graph permissions and export an app registration manifest, PowerShell, Azure CLI, Terraform, and an admin consent URL.',
-        pageKeywords: HOME_KEYWORDS,
-        canonicalUrl: 'basket.html',
-        basePath: '.',
-        navSection: 'basket',
-        structuredData: null,
-        ogType: 'website'
-    });
-    writeText(path.join(outputRoot, 'basket.html'), basketHtml);
 
     normalized.permissions.forEach((permission) => {
         const permissionHtml = renderLayout({
