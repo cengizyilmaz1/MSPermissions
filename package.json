@@ -27,7 +27,7 @@
   "type": "commonjs",
   "main": "scripts/node/build-site.js",
   "engines": {
-    "node": ">=20.0.0",
+    "node": ">=20.19.0",
     "npm": ">=10.0.0"
   },
   "scripts": {
@@ -49,10 +49,10 @@
     "check": "npm run lint && npm run format:check && npm test && npm run build:fixture"
   },
   "devDependencies": {
-    "@eslint/js": "^9.13.0",
-    "eslint": "^9.13.0",
-    "globals": "^15.11.0",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
+    "globals": "^17.11.0",
     "http-server": "^14.1.1",
-    "prettier": "^3.3.3"
+    "prettier": "^3.9.6"
   }
 }

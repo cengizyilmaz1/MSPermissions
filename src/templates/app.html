@@ -29,6 +29,11 @@
 
         <p class="permission-desc">{{APP_DESCRIPTION}}</p>
 
+        <div class="answer-block">
+            <p class="answer-block-label">In short</p>
+            <p class="answer-block-text">{{APP_SUMMARY_TEXT}}</p>
+        </div>
+
         <div class="permission-freshness">
             <svg viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>
             <span>{{APP_FRESHNESS_TEXT}}</span>
@@ -102,6 +107,8 @@
                     </table>
                 </div>
             </section>
+
+            {{APP_FAQ_SECTION}}
         </main>
 
         <aside class="permission-sidebar">

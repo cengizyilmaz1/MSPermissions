@@ -214,21 +214,50 @@ ${urls}</urlset>`;
     }
 
     generateRobotsTxt() {
+        const aiCrawlers = [
+            'GPTBot',
+            'OAI-SearchBot',
+            'ChatGPT-User',
+            'ClaudeBot',
+            'Claude-User',
+            'Claude-SearchBot',
+            'anthropic-ai',
+            'PerplexityBot',
+            'Perplexity-User',
+            'Google-Extended',
+            'Applebot-Extended',
+            'CCBot',
+            'Bytespider',
+            'meta-externalagent',
+            'cohere-ai',
+            'DuckAssistBot',
+            'MistralAI-User',
+            'Amazonbot',
+            'YouBot'
+        ];
+
+        const aiRules = aiCrawlers.map((agent) => `User-agent: ${agent}\nAllow: /\n`).join('\n');
+
         const content = `# Graph Permissions Explorer - Robots.txt
-# https://permissions.cengizyilmaz.net
+# ${this.baseUrl}
+#
+# This site exists to be read and cited. The generated HTML, the public JSON
+# contracts under /data/, and the AI discovery files below are all crawlable.
+#
+# AI discovery: ${this.baseUrl}/llms.txt
+# AI discovery (full): ${this.baseUrl}/llms-full.txt
 
 User-agent: *
 Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
 
-# Block development and data directories
-Disallow: /data/
-Disallow: /Script/
+# Source and working directories that are never published
 Disallow: /src/
+Disallow: /scripts/
 Disallow: /customdata/
 Disallow: /node_modules/
 
+# Reputable AI and answer-engine crawlers are explicitly welcome
+${aiRules}
 # Sitemap
 Sitemap: ${this.baseUrl}/sitemap.xml
 `;

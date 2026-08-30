@@ -98,7 +98,7 @@ async function ensureSearchIndexLoaded() {
     return searchIndexPromise;
 }
 
-async function openSearch() {
+async function openSearch(initialQuery = '') {
     const modal = document.getElementById('search-modal');
     const input = document.getElementById('search-input');
     const results = document.getElementById('search-results');
@@ -106,19 +106,33 @@ async function openSearch() {
         return;
     }
 
+    const query = typeof initialQuery === 'string' ? initialQuery : '';
+
     modal.classList.add('open');
     input.focus();
-    input.value = '';
-    currentSearchQuery = '';
+    input.value = query;
+    currentSearchQuery = query;
     renderSearchResults([]);
     results.innerHTML = '<div class="search-empty">Loading refreshed search catalog...</div>';
 
     try {
         await ensureSearchIndexLoaded();
-        renderSearchResults([]);
+        if (query) {
+            performSearch(query);
+        } else {
+            renderSearchResults([]);
+        }
     } catch {
         results.innerHTML =
             '<div class="search-empty no-results">Search is temporarily unavailable.</div>';
+    }
+}
+
+/** Backs the WebSite SearchAction advertised in the structured data: /?q=term. */
+function initQueryParamSearch() {
+    const query = new URLSearchParams(window.location.search).get('q');
+    if (query && query.trim()) {
+        openSearch(query.trim());
     }
 }
 
@@ -740,6 +754,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initTabs();
     initExportMenu();
     initToastNotifications();
+    initQueryParamSearch();
 
     const searchInput = document.getElementById('search-input');
     if (searchInput) {

@@ -3977,6 +3977,61 @@ body.sidebar-collapsed .index-content {
     height: 18px;
 }
 
+.footer-badges {
+    margin-top: 1.25rem;
+}
+
+.indietools-badge {
+    display: inline-block;
+    line-height: 0;
+    border-radius: var(--radius);
+    transition: transform var(--transition), opacity var(--transition);
+}
+
+.indietools-badge:hover {
+    transform: translateY(-1px);
+    opacity: 0.88;
+    text-decoration: none;
+}
+
+.indietools-badge:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+/*
+ * Theme-aware IndieTools badge.
+ * The site stores the active theme on <html data-theme="light|dark|system">.
+ * "system" is the only value that defers to prefers-color-scheme, so an explicit
+ * light/dark choice from the header toggle always wins over the OS preference.
+ * Intrinsic width/height stay on the <img> tags so the reserved box keeps the
+ * 470x150 aspect ratio and the footer does not shift while the badge loads.
+ */
+.indietools-badge-img {
+    display: none;
+    width: auto;
+    height: 34px;
+}
+
+[data-theme="light"] .indietools-badge-light,
+[data-theme="system"] .indietools-badge-light {
+    display: block;
+}
+
+[data-theme="dark"] .indietools-badge-dark {
+    display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+    [data-theme="system"] .indietools-badge-light {
+        display: none;
+    }
+
+    [data-theme="system"] .indietools-badge-dark {
+        display: block;
+    }
+}
+
 .footer-section h4 {
     font-size: 0.875rem;
     font-weight: 600;
@@ -5697,3 +5752,68 @@ body {
 
 
 
+
+/* ================================
+   Answer blocks & FAQ (GEO)
+   ================================ */
+
+.answer-block {
+    margin: 1rem 0 0;
+    padding: 0.9rem 1.1rem;
+    background: var(--accent-light);
+    border: 1px solid var(--hairline);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+}
+
+.answer-block-label {
+    margin: 0 0 0.35rem;
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.answer-block-text {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: var(--text);
+}
+
+.faq-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.faq-item {
+    padding: 1rem 1.15rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+}
+
+.faq-question {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.faq-answer {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+}
+
+.home-faq-section {
+    margin-bottom: var(--space-8);
+}
+
+.home-faq-section .faq-list {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}

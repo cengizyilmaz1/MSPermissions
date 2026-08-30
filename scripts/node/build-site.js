@@ -3,6 +3,7 @@ const path = require('path');
 
 const SEOOptimizer = require('../../src/seo-optimizer');
 const SitemapGenerator = require('../../src/sitemap-generator');
+const { writeLlmsFiles } = require('../../src/llms-generator');
 const {
     SITE_NAME,
     SITE_URL,
@@ -10,6 +11,8 @@ const {
     formatUtcLabel,
     generateAppDetailSidebar,
     generateAppsSidebar,
+    generateFaqHtml,
+    generateFaqItemsHtml,
     generateSidebar,
     getAppDetailPath,
     getAppPortalUrl,
@@ -58,11 +61,13 @@ function renderTemplate(template, replacements) {
 }
 
 function buildJsonLdScript(data) {
-    if (!data) {
+    const payload = Array.isArray(data) ? data.filter(Boolean) : data;
+
+    if (!payload || (Array.isArray(payload) && payload.length === 0)) {
         return '';
     }
 
-    return `<script type="application/ld+json">${JSON.stringify(data)}</script>`;
+    return `<script type="application/ld+json">${JSON.stringify(payload)}</script>`;
 }
 
 function copyDirectory(sourceDir, targetDir) {
@@ -124,115 +129,6 @@ function buildManifest(normalized) {
     };
 }
 
-function buildLlmsTxt(normalized) {
-    return [
-        '# Graph Permissions Explorer',
-        '',
-        '> Microsoft Graph permissions and Microsoft first-party application IDs reference.',
-        '',
-        'This site is maintained by Cengiz Yilmaz at permissions.cengizyilmaz.net. It is a public reference for Microsoft 365 / Entra administrators, developers, and AI/search consumers. Data is refreshed from official Microsoft sources: Microsoft Graph service principals, Microsoft Learn, Microsoft Entra documentation, and the Microsoft Graph OpenAPI metadata. Community-contributed application entries are explicitly labeled and must not be merged with official Microsoft sources. Always verify permissions against the official Microsoft Graph permissions reference.',
-        '',
-        '## Snapshot',
-        `- Snapshot ID: ${normalized.snapshotId}`,
-        `- Ingested at: ${normalized.ingestedAt}`,
-        `- Permissions: ${normalized.stats.permissions}`,
-        `- Categories: ${normalized.stats.categories}`,
-        `- Apps: ${normalized.stats.apps}`,
-        '',
-        '## Important URLs',
-        `- Home: ${SITE_URL}/`,
-        `- Microsoft apps: ${SITE_URL}/microsoft-apps.html`,
-        `- Sitemap: ${SITE_URL}/sitemap.xml`,
-        `- Robots: ${SITE_URL}/robots.txt`,
-        `- Extended AI discovery: ${SITE_URL}/llms-full.txt`,
-        `- Build metadata: ${SITE_URL}/build-info.json`,
-        `- Permissions catalog (JSON): ${SITE_URL}/data/catalog/permissions.json`,
-        `- Apps manifest (JSON): ${SITE_URL}/data/catalog/apps-manifest.json`,
-        '',
-        '## Machine-Readable Data',
-        '`/data/catalog/permissions.json` lists every permission as a compact tuple: [value, slug, category, applicationId, delegatedId, requiresAdmin]. `applicationId` and `delegatedId` are the real Microsoft Graph app role and OAuth2 scope GUIDs; an empty string means that permission type is not available. `requiresAdmin` is 1 when admin consent is required.',
-        '',
-        '`/data/catalog/apps-manifest.json` describes the first-party application catalog: the chunked `apps-*.json` data files and a search index of [title, appId, anchor].',
-        '',
-        '`/data/permissions/{slug}.json` contains the full per-permission record (Graph methods, PowerShell commands, official SDK code examples, and resource schema).',
-        '',
-        'Canonical permission URLs use this format:',
-        `\`${SITE_URL}/permissions/{slug}.html\``,
-        '',
-        'Canonical application URLs use this format:',
-        `\`${SITE_URL}/apps/{anchor}.html\``,
-        '',
-        '## Citation Guidance',
-        '- Cite the canonical permission or application detail URL as the source page.',
-        '- Prefer permission detail pages for descriptions, Graph methods, PowerShell commands, and official SDK examples.',
-        '- Prefer app detail pages for App ID provenance, trust labels, and source-specific references.',
-        '- Permission IDs published here are the real Graph app role / OAuth2 scope GUIDs and can be used directly in app registration manifests.',
-        '- Community app entries are explicitly labeled; do not present them as official Microsoft sources.',
-        '- Use build-info.json for freshness and snapshot metadata.'
-    ].join('\n');
-}
-
-function buildLlmsFullTxt(normalized) {
-    const lines = [
-        '# Graph Permissions Explorer',
-        '',
-        '> Extended discovery file for search systems and LLMs.',
-        '',
-        '## Snapshot',
-        `- Snapshot ID: ${normalized.snapshotId}`,
-        `- Ingested at: ${normalized.ingestedAt}`,
-        '',
-        '## Source Freshness'
-    ];
-
-    Object.entries(normalized.sourceFreshness).forEach(([key, value]) => {
-        lines.push(`- ${key}: ${value.updatedAt} (${value.source})`);
-    });
-
-    lines.push(
-        '',
-        '## Public Data Contracts',
-        `${SITE_URL}/build-info.json`,
-        `${SITE_URL}/data/catalog/permissions.json`,
-        `${SITE_URL}/data/catalog/apps-manifest.json`,
-        `${SITE_URL}/data/catalog/apps-*.json`,
-        `${SITE_URL}/data/permissions/{slug}.json`,
-        '',
-        '## Machine-Readable Data',
-        'permissions.json items: [value, slug, category, applicationId, delegatedId, requiresAdmin]. applicationId and delegatedId are the real Microsoft Graph app role and OAuth2 scope GUIDs ("" when the permission type is not available); requiresAdmin is 1 when admin consent is required.',
-        'apps-manifest.json: chunk list plus a search index of [title, appId, anchor]; full app records live in the apps-*.json data files.',
-        `Canonical permission URL format: ${SITE_URL}/permissions/{slug}.html`,
-        `Canonical application URL format: ${SITE_URL}/apps/{anchor}.html`,
-        '',
-        '## Core HTML Surfaces',
-        `${SITE_URL}/`,
-        `${SITE_URL}/microsoft-apps.html`,
-        '',
-        '## Permission Detail Pages'
-    );
-
-    normalized.permissions.forEach((permission) => {
-        lines.push(`${SITE_URL}/permissions/${permission.slug}.html`);
-    });
-
-    lines.push('', '## App Detail Pages');
-
-    normalized.apps.forEach((app) => {
-        lines.push(`${SITE_URL}/${getAppDetailPath(app)}`);
-    });
-
-    lines.push(
-        '',
-        '## Citation Guidance',
-        '- Cite the canonical permission or application detail URL as the source page.',
-        '- Permission IDs are the real Graph app role / OAuth2 scope GUIDs, usable directly in app registration manifests.',
-        '- Community app entries are explicitly labeled; do not present them as official Microsoft sources.',
-        '- Verify permissions against the official Microsoft Graph permissions reference.'
-    );
-
-    return lines.join('\n');
-}
-
 function getSourceTagClass(app) {
     return app.isCommunity ? 'custom' : app.source;
 }
@@ -271,6 +167,7 @@ function createLayoutRenderer(templates, normalized, seoOptimizer) {
             basePath,
             navSection,
             structuredData,
+            breadcrumb = null,
             ogType,
             lastModifiedIso = normalized.ingestedAt,
             pageMetaExtra = ''
@@ -294,18 +191,22 @@ function createLayoutRenderer(templates, normalized, seoOptimizer) {
             LAST_MODIFIED_ISO: lastModifiedIso,
             OG_TYPE: ogType,
             STRUCTURED_DATA_SITE: siteStructuredData,
+            STRUCTURED_DATA_BREADCRUMB: buildJsonLdScript(
+                seoOptimizer.generateBreadcrumbStructuredData(breadcrumb)
+            ),
             STRUCTURED_DATA_ARTICLE: buildJsonLdScript(structuredData)
         });
     };
 }
 
-function buildHomepageContent(templates, normalized) {
+function buildHomepageContent(templates, normalized, faqEntries) {
     return renderTemplate(templates.index, {
         TOTAL_PERMISSIONS: String(normalized.stats.permissions),
         TOTAL_APP: String(normalized.stats.applicationPermissions),
         TOTAL_DELEGATED: String(normalized.stats.delegatedPermissions),
         TOTAL_CATEGORIES: String(normalized.stats.categories),
-        TOTAL_APPS: String(normalized.stats.apps)
+        TOTAL_APPS: String(normalized.stats.apps),
+        HOME_FAQ_ITEMS: generateFaqItemsHtml(faqEntries)
     });
 }
 
@@ -332,9 +233,10 @@ function buildAppsOverviewContent(templates, normalized) {
     });
 }
 
-function buildPermissionDetailContent(templates, permission) {
-    const view = buildPermissionPageContent(permission);
+function buildPermissionDetailContent(templates, permission, view, faqEntries) {
     return renderTemplate(templates.permission, {
+        ANSWER_BLOCK: view.answerBlock,
+        FAQ_SECTION: generateFaqHtml(faqEntries),
         PERMISSION_VALUE: escapeHtml(permission.value),
         PERMISSION_CATEGORY: escapeHtml(permission.category),
         PERMISSION_DESCRIPTION: escapeHtml(permission.description || ''),
@@ -366,7 +268,19 @@ function buildPermissionDetailContent(templates, permission) {
     });
 }
 
-function buildAppDetailContent(templates, app, normalized) {
+/**
+ * Names the app and its App ID in one sentence so the claim survives being
+ * quoted on its own by an answer engine.
+ */
+function buildAppSummary(app) {
+    const trust = app.isCommunity
+        ? 'a community-maintained entry in this catalog'
+        : `an official Microsoft first-party application recorded in ${app.sourceDisplayLabel || app.sourceLabel}`;
+
+    return `${app.title} is ${trust}. Its Microsoft application (client) ID is ${app.appId}, which is the value you will see for this application in Microsoft Entra ID sign-in logs, audit logs, and service principal listings.`;
+}
+
+function buildAppDetailContent(templates, app, normalized, faqEntries) {
     const sourceDoc = getAppSourceDoc(app);
     const portalUrl = getAppPortalUrl(app);
     const detailUrl = `${SITE_URL}/${getAppDetailPath(app)}`;
@@ -374,6 +288,8 @@ function buildAppDetailContent(templates, app, normalized) {
     const ownerOrganizationId = app.ownerOrganizationId || 'Not published in the source snapshot';
 
     return renderTemplate(templates.app, {
+        APP_SUMMARY_TEXT: escapeHtml(buildAppSummary(app)),
+        APP_FAQ_SECTION: generateFaqHtml(faqEntries),
         APP_TITLE: escapeHtml(app.title),
         APP_ID: escapeHtml(app.appId),
         APP_PORTAL_URL: portalUrl,
@@ -431,11 +347,12 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
     writeJson(path.join(outputRoot, 'manifest.json'), buildManifest(normalized));
     writeJson(path.join(outputRoot, 'build-info.json'), buildBuildInfo(normalized, generatedAt));
     writeText(path.join(outputRoot, 'CNAME'), `${new URL(SITE_URL).host}\n`);
-    writeText(path.join(outputRoot, 'llms.txt'), `${buildLlmsTxt(normalized)}\n`);
-    writeText(path.join(outputRoot, 'llms-full.txt'), `${buildLlmsFullTxt(normalized)}\n`);
 
+    const llmsSizes = writeLlmsFiles(normalized, outputRoot, { siteUrl: SITE_URL });
+
+    const homeFaqEntries = seoOptimizer.buildHomepageFaqEntries(normalized.stats);
     const homeHtml = renderLayout({
-        content: buildHomepageContent(templates, normalized),
+        content: buildHomepageContent(templates, normalized, homeFaqEntries),
         sidebar: generateSidebar(categories, null, '.'),
         pageTitle: seoOptimizer.generateHomepageTitle(normalized.stats),
         pageDescription: seoOptimizer.generateHomepageDescription(normalized.stats),
@@ -443,9 +360,12 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
         canonicalUrl: '',
         basePath: '.',
         navSection: 'permissions',
-        structuredData: seoOptimizer.generateHomepageStructuredData(normalized.stats, {
-            dateModified
-        }),
+        structuredData: [
+            ...seoOptimizer.generateHomepageStructuredData(normalized.stats, {
+                dateModified
+            }),
+            seoOptimizer.generateFaqStructuredData(homeFaqEntries, { url: `${SITE_URL}/` })
+        ],
         ogType: 'website',
         pageMetaExtra: [
             `<meta name="dataset:snapshot-id" content="${escapeHtml(normalized.snapshotId)}">`,
@@ -467,6 +387,10 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
         structuredData: seoOptimizer.generateAppsOverviewStructuredData(normalized.stats, {
             dateModified
         }),
+        breadcrumb: [
+            { name: 'Home', url: `${SITE_URL}/` },
+            { name: 'Microsoft app IDs', url: `${SITE_URL}/microsoft-apps.html` }
+        ],
         ogType: 'website',
         pageMetaExtra: [
             `<meta name="dataset:snapshot-id" content="${escapeHtml(normalized.snapshotId)}">`,
@@ -476,8 +400,11 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
     writeText(path.join(outputRoot, 'microsoft-apps.html'), appsHtml);
 
     normalized.permissions.forEach((permission) => {
+        const view = buildPermissionPageContent(permission);
+        const permissionUrl = `${SITE_URL}/permissions/${permission.slug}.html`;
+        const faqEntries = seoOptimizer.buildPermissionFaqEntries(permission, view);
         const permissionHtml = renderLayout({
-            content: buildPermissionDetailContent(templates, permission),
+            content: buildPermissionDetailContent(templates, permission, view, faqEntries),
             sidebar: generateSidebar(categories, permission.slug, '..'),
             pageTitle: seoOptimizer.generatePermissionTitle(permission),
             pageDescription: seoOptimizer.generatePermissionDescription(permission),
@@ -485,9 +412,20 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
             canonicalUrl: `permissions/${permission.slug}.html`,
             basePath: '..',
             navSection: 'permissions',
-            structuredData: seoOptimizer.generatePermissionStructuredData(permission, {
-                dateModified
-            }),
+            structuredData: [
+                seoOptimizer.generatePermissionStructuredData(permission, {
+                    dateModified
+                }),
+                seoOptimizer.generateFaqStructuredData(faqEntries, { url: permissionUrl })
+            ],
+            breadcrumb: [
+                { name: 'Home', url: `${SITE_URL}/` },
+                {
+                    name: `${permission.category} permissions`,
+                    url: `${SITE_URL}/#${encodeURIComponent(permission.category)}`
+                },
+                { name: permission.value, url: permissionUrl }
+            ],
             ogType: 'article',
             pageMetaExtra: [
                 `<meta name="dataset:snapshot-id" content="${escapeHtml(normalized.snapshotId)}">`,
@@ -500,8 +438,10 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
 
     normalized.apps.forEach((app) => {
         const sourceDoc = getAppSourceDoc(app);
+        const appUrl = `${SITE_URL}/${getAppDetailPath(app)}`;
+        const faqEntries = seoOptimizer.buildAppFaqEntries(app, sourceDoc);
         const appHtml = renderLayout({
-            content: buildAppDetailContent(templates, app, normalized),
+            content: buildAppDetailContent(templates, app, normalized, faqEntries),
             sidebar: generateAppDetailSidebar(app, '..'),
             pageTitle: seoOptimizer.generateAppDetailTitle(app),
             pageDescription: seoOptimizer.generateAppDetailDescription(app),
@@ -509,10 +449,18 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
             canonicalUrl: getAppDetailPath(app),
             basePath: '..',
             navSection: 'apps',
-            structuredData: seoOptimizer.generateAppDetailStructuredData(app, {
-                dateModified,
-                sourceDocUrl: sourceDoc.url
-            }),
+            structuredData: [
+                ...seoOptimizer.generateAppDetailStructuredData(app, {
+                    dateModified,
+                    sourceDocUrl: sourceDoc.url
+                }),
+                seoOptimizer.generateFaqStructuredData(faqEntries, { url: appUrl })
+            ],
+            breadcrumb: [
+                { name: 'Home', url: `${SITE_URL}/` },
+                { name: 'Microsoft app IDs', url: `${SITE_URL}/microsoft-apps.html` },
+                { name: app.title, url: appUrl }
+            ],
             ogType: 'profile',
             pageMetaExtra: [
                 `<meta name="dataset:snapshot-id" content="${escapeHtml(normalized.snapshotId)}">`,
@@ -535,6 +483,9 @@ function buildSite(inputPath = DEFAULT_INPUT, outputDir = DEFAULT_OUTPUT) {
     log.info(`Snapshot: ${normalized.snapshotId}`);
     log.info(`Permissions: ${normalized.stats.permissions}`);
     log.info(`Apps: ${normalized.stats.apps}`);
+    log.info(
+        `AI discovery: llms.txt ${Math.round(llmsSizes.llmsBytes / 1024)} KB, llms-full.txt ${Math.round(llmsSizes.llmsFullBytes / 1024)} KB`
+    );
 }
 
 const command = {

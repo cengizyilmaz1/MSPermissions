@@ -2051,7 +2051,7 @@ function generateSidebar(categories, currentSlug = null, basePath = '.') {
                 : false;
 
             return `
-        <div class="nav-category ${expanded ? 'expanded' : ''}">
+        <div class="nav-category ${expanded ? 'expanded' : ''}" id="${escapeHtml(category)}">
             <button class="nav-category-header" onclick="toggleCategory(this)">
                 <svg class="nav-icon" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
                 <span class="nav-category-name">${escapeHtml(category)}</span>
@@ -2540,6 +2540,73 @@ function generateRelationshipsHtml(permission) {
     );
 }
 
+/**
+ * A single self-contained sentence that names the permission, its type, its
+ * category and its consent requirement. Written so it stays correct when a
+ * search engine or language model quotes it away from the rest of the page.
+ */
+function buildPermissionSummary(permission, consentText) {
+    const typePhrase =
+        permission.hasApplication && permission.hasDelegated
+            ? 'is available as both an application permission and a delegated permission'
+            : permission.hasApplication
+              ? 'is an application-only permission'
+              : 'is a delegated permission';
+    const description = (permission.description || '').trim();
+    const accessPhrase = ACCESS_LEVEL_TEXT[permission.accessLevel] || ACCESS_LEVEL_TEXT.read;
+
+    return [
+        `${permission.value} ${typePhrase} in the Microsoft Graph API, grouped under the ${permission.category} category.`,
+        description,
+        `It grants ${accessPhrase.toLowerCase()}.`,
+        consentText
+    ]
+        .filter(Boolean)
+        .join(' ');
+}
+
+function generateAnswerBlockHtml(permission, consentText) {
+    const summary = buildPermissionSummary(permission, consentText);
+
+    return `
+        <div class="answer-block">
+            <p class="answer-block-label">In short</p>
+            <p class="answer-block-text">${escapeHtml(summary)}</p>
+        </div>`;
+}
+
+function generateFaqItemsHtml(entries) {
+    if (!Array.isArray(entries) || entries.length === 0) {
+        return '';
+    }
+
+    return entries
+        .map(
+            (entry) => `
+                <div class="faq-item">
+                    <h3 class="faq-question">${escapeHtml(entry.question)}</h3>
+                    <p class="faq-answer">${escapeHtml(entry.answer)}</p>
+                </div>`
+        )
+        .join('');
+}
+
+function generateFaqHtml(entries) {
+    const items = generateFaqItemsHtml(entries);
+    if (!items) {
+        return '';
+    }
+
+    return `
+            <section class="permission-section faq-section" id="faq">
+                <h2>
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Frequently asked questions
+                </h2>
+                <div class="faq-list">${items}</div>
+            </section>`;
+}
+
 function buildPermissionPageContent(permission) {
     const permissionTypeText =
         permission.hasApplication && permission.hasDelegated
@@ -2554,6 +2621,8 @@ function buildPermissionPageContent(permission) {
           : 'This delegated permission requires admin consent.';
 
     return {
+        answerBlock: generateAnswerBlockHtml(permission, consentText),
+        summaryText: buildPermissionSummary(permission, consentText),
         typeBadges: buildTypeBadges(permission),
         accessBadge: `<span class="badge badge-${permission.accessLevel}">${ACCESS_LEVEL_LABELS[permission.accessLevel] || 'Read'}</span>`,
         scopeBadge: `<span class="badge badge-scope">${SCOPE_LABELS[permission.scope] || 'User Scope'}</span>`,
@@ -2611,9 +2680,13 @@ module.exports = {
     buildAppsManifest,
     buildPermissionCatalog,
     buildPermissionPageContent,
+    buildPermissionSummary,
     formatUtcLabel,
+    generateAnswerBlockHtml,
     generateAppDetailSidebar,
     generateAppsSidebar,
+    generateFaqHtml,
+    generateFaqItemsHtml,
     generateAppsTableRows,
     generateSidebar,
     getAppAnchor,

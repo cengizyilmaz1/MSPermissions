@@ -71,6 +71,7 @@ Permissions/
 |   |-- config/                Validation thresholds and explicit resource/resource-relationship mapping
 |   |-- lib/                   Normalization, rendering helpers, public data contracts
 |   |-- templates/             HTML, CSS, JS, and static assets
+|   |-- llms-generator.js      llms.txt and llms-full.txt generation
 |   |-- seo-optimizer.js       SEO/GEO metadata helpers
 |   `-- sitemap-generator.js   Sitemap and robots generation
 |-- test/                      Fixture-based tests
@@ -245,13 +246,17 @@ The site now publishes stronger search and AI-discovery signals:
 
 - Page-level canonical URLs
 - Structured data for:
-  - site-wide `WebSite`
-  - homepage `CollectionPage` and `Dataset`
-  - permission pages `TechArticle`
+  - site-wide `WebSite` with a `SearchAction` (`/?q=term` opens the search modal prefilled)
+  - a per-page `BreadcrumbList` generated from the real navigation trail
+  - homepage `CollectionPage`, `Dataset`, and `FAQPage`
+  - permission pages `TechArticle` and `FAQPage`
   - apps overview page `CollectionPage` and `Dataset`
-  - app detail pages `ProfilePage` and `SoftwareApplication`
-- `llms.txt` for concise AI discovery
-- `llms-full.txt` for extended AI discovery with permission URLs and app detail URLs
+  - app detail pages `ProfilePage`, `SoftwareApplication`, and `FAQPage`
+  - one shared author `Person` and publisher `Organization` entity, referenced by `@id`
+- Quotable "In short" summary blocks and answer-style FAQ sections rendered as static HTML on permission and app detail pages
+- `llms.txt`, a concise llmstxt.org-style navigational index
+- `llms-full.txt`, the complete permission and application reference expanded inline as Markdown
+- `robots.txt` that allows the public JSON contracts and explicitly welcomes reputable AI crawlers
 - XML sitemaps for homepage, permissions, apps overview, and app detail pages
 - `build-info.json` for freshness, snapshot ID, and source metadata
 
@@ -285,7 +290,7 @@ The production workflow uses artifact deploy. It does not commit generated `docs
 
 For `npm run refresh:data`, you need:
 
-- Node.js 22+
+- Node.js 22+ (the toolchain requires at least 20.19)
 - PowerShell (`pwsh` or Windows PowerShell)
 - Azure CLI logged in
 - permission to obtain a Microsoft Graph access token
